@@ -1,4 +1,30 @@
-TODO:
-Test load unload world - reset generator poweruse
-Check oven and other machines activation
-Always set the power on activation
+TODO: Add power-sharing functionality
+    Calculations checking:
+        Verify each generator, and it's adjacent
+        If rules are set, store valid generators in a table
+    Radius checking:
+        Check radius around generator from ModData DONE!
+        If another generator found, add it to a table DONE!
+        Do that to ALL generators in the world DONE!
+    Share Power:
+        Get valid generators from table
+        Get average total power from all
+        Set this average consumption to each one
+
+adjacent == inside radius
+Calculations needed:
+To share power, the generator needs to be adjacent to the same as other generators
+e.g. Generator A is adjacent to Generators B and C.
+     Generator B is only adjacent to Generator A.
+     Generator C is only adjacent to Generator A.
+THIS MEANS THAT NO POWER WILL BE SHARED BETWEEN THEM
+e.g. Generator A is adjacent to Generators B and C.
+     Generator B is adjacent to Generator A and C.
+     Generator C is only adjacent to Generator A and B.
+THIS MEANS THAT POWER WILL BE SHARED BETWEEN THEM
+
+Always set the power on activation DONE!
+Add generators turned on to global ModData DONE!
+Every minute check ModData to adjust generators DONE!
+    If no generators exist, remove square from ModData DONE!
+
