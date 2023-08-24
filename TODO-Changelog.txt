@@ -1,0 +1,4 @@
+TODO:
+Test load unload world - reset generator poweruse
+Check oven and other machines activation
+Always set the power on activation
