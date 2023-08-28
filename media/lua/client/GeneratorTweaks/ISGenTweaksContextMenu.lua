@@ -15,7 +15,7 @@ local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 ---@param _player number Player index number
 ---@param context ISContextMenu Generated ContextMenu
 ---@param worldObjects table<number, IsoObject> Table containing objects on the clicked position
-function ISGenTweaksUtils.onContextMenu(_player, context, worldObjects)
+function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
     local player = getSpecificPlayer(_player)
     local generator
     for i=1, #worldObjects do
@@ -28,7 +28,7 @@ function ISGenTweaksUtils.onContextMenu(_player, context, worldObjects)
         context:addOption("Check Radius", generator, ISGenTweaksPowerShare.checkRadius, player)
     end
 end
-Events.OnFillWorldObjectContextMenu.Add(ISGenTweaksUtils.onContextMenu)
+Events.OnFillWorldObjectContextMenu.Add(ISGenTweaksContextMenu.onContextMenu)
 
 ------------------ Returning file for 'require' ------------------
 return ISGenTweaksContextMenu
