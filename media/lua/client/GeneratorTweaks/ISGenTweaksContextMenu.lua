@@ -25,7 +25,7 @@ function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
     end
 
     if generator then
-        context:addOption("Check Radius", nil, ISGenTweaksPowerShare.saveAdjacentModData)
+        context:addOption("Check Radius", player, ISGenTweaksPowerShare.saveAdjacentModData)
     end
 end
 Events.OnFillWorldObjectContextMenu.Add(ISGenTweaksContextMenu.onContextMenu)

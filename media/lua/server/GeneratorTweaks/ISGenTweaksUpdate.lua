@@ -21,7 +21,7 @@ function ISGenTweaksUpdate.updateEveryMinute()
                 if not generatorSquare then return end
                 local generator = generatorSquare:getGenerator()
                 if not generator then
-                    table.remove(totalGenerators, i)
+                    totalGenerators[i] = nil
                 else
                     if instanceof(generator, "IsoGenerator") and generator:isActivated() then
                         ISGenTweaksPowerSet.correctGenerator(generator)
