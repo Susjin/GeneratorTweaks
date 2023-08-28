@@ -10,6 +10,7 @@ local ISGenTweaksPowerSet = {}
 ----------------------------------------------------------------------------------------------
 --Setting locals
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
+local pairs = pairs
 
 
 ---Gets all the powered items from the generator and splits then into a table
@@ -47,16 +48,26 @@ function ISGenTweaksPowerSet.setPower(generator, power)
 
     --Storing Generator on GlobalModData
     local exists = false
+    local genID = 0
     local generatorSquare = generator:getSquare()
-    local genID = ZombRand(9999)
-    local generatorData = { x = generatorSquare:getX(), y = generatorSquare:getY(), z = generatorSquare:getZ(), id = genID}
+    local generatorData = { x = generatorSquare:getX(), y = generatorSquare:getY(), z = generatorSquare:getZ()}
     local genModData = ModData.getOrCreate("GenTweaks")
-    for i = 1, #genModData do
-        if genModData[i].x == generatorData.x and genModData[i].y == generatorData.y and genModData[i].z == generatorData.z then
+    for _, data in pairs(genModData) do
+        if data.x == generatorData.x and data.y == generatorData.y and data.z == generatorData.z then
             exists = true
         end
     end
-    if not exists then genModData[#genModData+1] = generatorData
+    if not exists then
+        repeat
+            local sameID = false
+            genID = ZombRand(9999)
+            for i,_ in pairs(genModData) do
+                if i == genID then
+                    sameID = true
+                end
+            end
+        until (sameID == false)
+        genModData[genID] = generatorData
     end
 end
 
@@ -68,11 +79,6 @@ function ISGenTweaksPowerSet.correctGenerator(generator)
     if not (ISGenTweaksUtils.roundNumber(generator:getTotalPowerUsing(), 2) == totalNewPower) then
         ISGenTweaksPowerSet.setPower(generator, totalNewPower)
     end
-    print(generator:getObjectIndex())
-    print(generator:getWorldObjectIndex())
-    print(generator:getSpecialObjectIndex())
-    print(generator:getMovingObjectIndex())
-    print(generator:getStaticMovingObjectIndex())
 end
 
 ---Overwrite default vanilla behaviour to fix generator consumption

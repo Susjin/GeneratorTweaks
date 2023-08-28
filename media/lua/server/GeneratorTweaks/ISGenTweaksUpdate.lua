@@ -9,14 +9,15 @@ local ISGenTweaksUpdate = {}
 ----------------------------------------------------------------------------------------------
 --Setting up locals
 local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
+local pairs = pairs
 
 ---Updates all generators on the Global ModData per in-game minute
 function ISGenTweaksUpdate.updateEveryMinute()
     local totalGenerators = ModData.getOrCreate("GenTweaks")
     if totalGenerators then
-        for i = 1, #totalGenerators do
-            if totalGenerators[i] then
-                local generatorSquare = getCell():getGridSquare(totalGenerators[i].x, totalGenerators[i].y, totalGenerators[i].z)
+        for i, data in pairs(totalGenerators) do
+            if data then
+                local generatorSquare = getCell():getGridSquare(data.x, data.y, data.z)
                 if not generatorSquare then return end
                 local generator = generatorSquare:getGenerator()
                 if not generator then

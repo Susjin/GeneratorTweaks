@@ -10,7 +10,7 @@ local ISGenTweaksPowerShare = {}
 ----------------------------------------------------------------------------------------------
 --Setting locals
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
-
+local pairs = pairs
 
 ---checkRadius
 ---@param generator IsoGenerator
@@ -20,10 +20,10 @@ function ISGenTweaksPowerShare.checkRadius(generator)
     local cell = getCell()
     local currentGeneratorSquare = generator:getSquare()
     local currentGeneratorAdjacent = {}
-    for i = 1, #totalGenerators do
-        local generatorModDataSquare = cell:getGridSquare(totalGenerators[i].x, totalGenerators[i].y, totalGenerators[i].z)
+    for _, data in pairs(totalGenerators) do
+        local generatorModDataSquare = cell:getGridSquare(data.x, data.y, data.z)
         if generatorModDataSquare and (generatorModDataSquare ~= currentGeneratorSquare) and (currentGeneratorSquare:DistToProper(generatorModDataSquare) <= 20) then
-            table.insert(currentGeneratorAdjacent, totalGenerators[i])
+            table.insert(currentGeneratorAdjacent, data)
         end
     end
     ISGenTweaksUtils.printAdjacent(currentGeneratorAdjacent)
