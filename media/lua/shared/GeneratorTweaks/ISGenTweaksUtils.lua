@@ -29,51 +29,6 @@ function ISGenTweaksUtils.printAdjacent(table)
 	end
 end
 
-
-
----Updates all generators on the Global ModData per in-game minute
-function ISGenTweaksUtils.updateEveryMinute()
-	local totalGenerators = ModData.getOrCreate("GenTweaks")
-	if totalGenerators then
-		for i = 1, #totalGenerators do
-			if totalGenerators[i] then
-				local generatorSquare = getCell():getGridSquare(totalGenerators[i].x, totalGenerators[i].y, totalGenerators[i].z)
-				if not generatorSquare then return end
-				local generator = generatorSquare:getGenerator()
-				if not generator then
-					table.remove(totalGenerators, i)
-				else
-					if instanceof(generator, "IsoGenerator") and generator:isActivated() then
-						ISGenTweaksUtils.correctGenerator(generator)
-					end
-				end
-			end
-		end
-	end
-end
-Events.EveryOneMinute.Add(ISGenTweaksUtils.updateEveryMinute)
-
-
----Creates the ContextMenu option when clicking a generator
----@param _player number Player index number
----@param context ISContextMenu Generated ContextMenu
----@param worldObjects table<number, IsoObject> Table containing objects on the clicked position
-function ISGenTweaksUtils.onContextMenu(_player, context, worldObjects)
-	local player = getSpecificPlayer(_player)
-	local generator
-	for i=1, #worldObjects do
-		if instanceof(worldObjects[i], "IsoGenerator") then
-			generator = worldObjects[i]
-		end
-	end
-	
-	if generator then
-		context:addOption("Check Radius", generator, ISGenTweaksUtils.checkRadius, player)
-	end
-end
-Events.OnFillWorldObjectContextMenu.Add(ISGenTweaksUtils.onContextMenu)
-
-
 ------------------ Returning file for 'require' ------------------
 return ISGenTweaksUtils
 

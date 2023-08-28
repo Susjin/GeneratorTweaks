@@ -68,6 +68,11 @@ function ISGenTweaksPowerSet.correctGenerator(generator)
     if not (ISGenTweaksUtils.roundNumber(generator:getTotalPowerUsing(), 2) == totalNewPower) then
         ISGenTweaksPowerSet.setPower(generator, totalNewPower)
     end
+    print(generator:getObjectIndex())
+    print(generator:getWorldObjectIndex())
+    print(generator:getSpecialObjectIndex())
+    print(generator:getMovingObjectIndex())
+    print(generator:getStaticMovingObjectIndex())
 end
 
 ---Overwrite default vanilla behaviour to fix generator consumption
