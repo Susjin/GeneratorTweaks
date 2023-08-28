@@ -20,7 +20,7 @@ end
 
 ---Prints the coordinates of a IsoGridSquare
 ---@param table table Contains a x, y and z index for the position of a IsoGridSquare
-function ISGenTweaksUtils.printAdjacent(table)
+function ISGenTweaksUtils.printPosFromData(table)
 	for i = 1, #table do
 		local square = getCell():getGridSquare(table[i].x, table[i].y, table[i].z)
 		if square then

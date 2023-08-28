@@ -13,7 +13,7 @@ local pairs = pairs
 
 ---Updates all generators on the Global ModData per in-game minute
 function ISGenTweaksUpdate.updateEveryMinute()
-    local totalGenerators = ModData.getOrCreate("GenTweaks")
+    local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
     if totalGenerators then
         for i, data in pairs(totalGenerators) do
             if data then

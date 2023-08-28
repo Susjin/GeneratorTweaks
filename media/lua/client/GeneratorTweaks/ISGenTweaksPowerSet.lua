@@ -51,7 +51,7 @@ function ISGenTweaksPowerSet.setPower(generator, power)
     local genID = 0
     local generatorSquare = generator:getSquare()
     local generatorData = { x = generatorSquare:getX(), y = generatorSquare:getY(), z = generatorSquare:getZ()}
-    local genModData = ModData.getOrCreate("GenTweaks")
+    local genModData = ModData.getOrCreate("GenTweaksGenerators")
     for _, data in pairs(genModData) do
         if data.x == generatorData.x and data.y == generatorData.y and data.z == generatorData.z then
             exists = true
