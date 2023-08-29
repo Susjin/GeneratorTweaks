@@ -1,3 +1,4 @@
+
 ----------------------------------------------------------------------------------------------
 ---	Generator Tweaks
 ---	@author: peteR_pg
@@ -12,6 +13,7 @@ local ISGenTweaksPowerSet = {}
 --local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 local pairs = pairs
+local powerGeneratorConstant = 0.02
 
 
 ---Gets all the powered items from the generator and splits then into a table
@@ -46,7 +48,7 @@ end
 ---@param power number New power to be set
 function ISGenTweaksPowerSet.setPower(generator, power)
     if not generator then return end
-    local totalNewPower = ISGenTweaksUtils.roundNumber((power * SandboxVars.GeneratorFuelConsumption), 5)
+    local totalNewPower = ISGenTweaksUtils.roundNumber(((power + powerGeneratorConstant) * SandboxVars.GeneratorFuelConsumption), 5)
     generator:setTotalPowerUsing(totalNewPower)
 end
 
