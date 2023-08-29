@@ -8,6 +8,7 @@
 local ISGenTweaksUpdate = {}
 ----------------------------------------------------------------------------------------------
 --Setting up locals
+local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 local pairs = pairs
@@ -16,23 +17,12 @@ local pairs = pairs
 function ISGenTweaksUpdate.updateEveryMinute()
     local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
     if not totalGenerators then return end
-
-
-
-    if totalGenerators then
-        for i, data in pairs(totalGenerators) do
-            if data then
-                local generator = ISGenTweaksUtils.getGeneratorFromPos(data)
-                if not generator then
-                    totalGenerators[i] = nil
-                else
-                    if instanceof(generator, "IsoGenerator") and generator:isActivated() then
-                        ISGenTweaksPowerSet.correctGenerator(generator)
-                    end
-                end
-            end
-        end
-    end
+    local branches = ModData.getOrCreate("GenTweaksBranches")
+    if not branches then return end
+    --Corrects the weird consumption value
+    ISGenTweaksPowerSet.correctAllGenerators(totalGenerators)
+    --Activates PowerShare if wanted
+    ISGenTweaksPowerShare.splitPowerBranch(totalGenerators, branches)
 end
 Events.EveryOneMinute.Add(ISGenTweaksUpdate.updateEveryMinute)
 

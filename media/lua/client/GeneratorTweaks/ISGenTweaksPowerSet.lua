@@ -9,6 +9,7 @@
 local ISGenTweaksPowerSet = {}
 ----------------------------------------------------------------------------------------------
 --Setting locals
+local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 local pairs = pairs
 
@@ -51,13 +52,30 @@ function ISGenTweaksPowerSet.setPower(generator, power)
     end
 end
 
----Adjust the generator consumption to the REAL total power cost, only if needed
+---Adjust the generator consumption to the REAL total power cost
 ---@param generator IsoGenerator Generator to be updated
 function ISGenTweaksPowerSet.correctGenerator(generator)
     if not generator then return end
     local itemList = ISGenTweaksPowerSet.getAllPowered(generator)
     local totalNewPower = ISGenTweaksPowerSet.sumPowerCost(itemList)
     ISGenTweaksPowerSet.setPower(generator, totalNewPower)
+end
+
+---Correct all generators that are in the ModData
+---@param totalGenerators KahluaTable ModData table containing all generators IDs and pos
+function ISGenTweaksPowerSet.correctAllGenerators(totalGenerators)
+    for i, data in pairs(totalGenerators) do
+        if data then
+            local generator = ISGenTweaksUtils.getGeneratorFromPos(data)
+            if not generator then
+                totalGenerators[i] = nil
+            else
+                if instanceof(generator, "IsoGenerator") and generator:isActivated() then
+                    ISGenTweaksPowerSet.correctGenerator(generator)
+                end
+            end
+        end
+    end
 end
 
 ---Overwrite default vanilla behaviour to fix generator consumption
@@ -67,6 +85,7 @@ function ISActivateGenerator:perform()
     if self.activate == true then
         ISGenTweaksPowerSet.correctGenerator(self.generator)
         ISGenTweaksUtils.saveGeneratorToModData(self.generator)
+        ISGenTweaksPowerShare.checkAllConnections()
     end
 end
 
