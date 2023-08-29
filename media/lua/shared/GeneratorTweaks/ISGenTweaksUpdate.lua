@@ -10,8 +10,7 @@ local ISGenTweaksUpdate = {}
 --Setting up locals
 local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
-local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
-local pairs = pairs
+--local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 
 ---Updates all generators on the Global ModData per in-game minute
 function ISGenTweaksUpdate.updateEveryMinute()

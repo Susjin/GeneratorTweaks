@@ -9,7 +9,7 @@ local ISGenTweaksContextMenu = {}
 ----------------------------------------------------------------------------------------------
 --Setting up locals
 local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
---local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
+local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 --local pairs = pairs
 
@@ -45,7 +45,7 @@ function ISGenTweaksContextMenu.setSplitPower(generator)
     end
 end
 
-
+------------------ Functions related to ContextMenu ------------------
 
 ---Creates the ContextMenu option when clicking a generator
 ---@param _player number Player index number
@@ -67,6 +67,19 @@ function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
     end
 end
 Events.OnFillWorldObjectContextMenu.Add(ISGenTweaksContextMenu.onContextMenu)
+
+------------------ Functions related to Vanilla Overrides ------------------
+
+---Overwrite default vanilla behaviour to fix generator consumption
+local oldActivatePerform = ISActivateGenerator.perform
+function ISActivateGenerator:perform()
+    oldActivatePerform(self)
+    if self.activate == true then
+        ISGenTweaksPowerSet.correctGenerator(self.generator)
+        ISGenTweaksUtils.saveGeneratorToModData(self.generator)
+        ISGenTweaksPowerShare.checkAllConnections()
+    end
+end
 
 ------------------ Returning file for 'require' ------------------
 return ISGenTweaksContextMenu

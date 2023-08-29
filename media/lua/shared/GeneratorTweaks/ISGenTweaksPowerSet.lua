@@ -9,7 +9,7 @@
 local ISGenTweaksPowerSet = {}
 ----------------------------------------------------------------------------------------------
 --Setting locals
-local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
+--local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 local pairs = pairs
 
@@ -46,10 +46,8 @@ end
 ---@param power number New power to be set
 function ISGenTweaksPowerSet.setPower(generator, power)
     if not generator then return end
-    local totalNewPower = power * SandboxVars.GeneratorFuelConsumption
-    if not (ISGenTweaksUtils.roundNumber(generator:getTotalPowerUsing(), 2) == ISGenTweaksUtils.roundNumber(totalNewPower, 2)) then
-        generator:setTotalPowerUsing(totalNewPower)
-    end
+    local totalNewPower = ISGenTweaksUtils.roundNumber((power * SandboxVars.GeneratorFuelConsumption), 5)
+    generator:setTotalPowerUsing(totalNewPower)
 end
 
 ---Adjust the generator consumption to the REAL total power cost
@@ -75,17 +73,6 @@ function ISGenTweaksPowerSet.correctAllGenerators(totalGenerators)
                 end
             end
         end
-    end
-end
-
----Overwrite default vanilla behaviour to fix generator consumption
-local oldActivatePerform = ISActivateGenerator.perform
-function ISActivateGenerator:perform()
-    oldActivatePerform(self)
-    if self.activate == true then
-        ISGenTweaksPowerSet.correctGenerator(self.generator)
-        ISGenTweaksUtils.saveGeneratorToModData(self.generator)
-        ISGenTweaksPowerShare.checkAllConnections()
     end
 end
 

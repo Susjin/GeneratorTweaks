@@ -12,6 +12,10 @@ local ISGenTweaksUtils = {}
 local pairs = pairs
 local print = print
 
+------------------ Miscellaneous Functions ------------------
+
+---Prints a message in the log only if in debug mode
+---@param message string Message to be printed
 function ISGenTweaksUtils.debugMessage(message)
 	if getDebug() then
 		print(message)
@@ -47,6 +51,8 @@ function ISGenTweaksUtils.printConnections(branches)
 		ISGenTweaksUtils.debugMessage("")
 	end
 end
+
+------------------ Functions related to general Generator interactions ------------------
 
 function ISGenTweaksUtils.checkFocusGenerator(totalGenerators, shareValue)
 	if shareValue == 0 then return 1 end

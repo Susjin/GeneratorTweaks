@@ -47,13 +47,13 @@ end
 ---@param generatorID number Generator ID to be checked on the ModData table
 ---@param alreadyChecked table Table containing all Generator IDs already checked
 ---@param totalGenerators KahluaTable ModData table containing all Generator IDs
-function ISGenTweaksPowerShare.findAllConnections(generatorID, alreadyChecked, totalGenerators)
+function ISGenTweaksPowerShare.checkConnections(generatorID, alreadyChecked, totalGenerators)
     if not alreadyChecked[generatorID] then
         alreadyChecked[generatorID] = true
         local connections = { generatorID }
 
         for _, adjacent in pairs(totalGenerators[generatorID]) do
-            local subConnections = ISGenTweaksPowerShare.findAllConnections(adjacent, alreadyChecked, totalGenerators)
+            local subConnections = ISGenTweaksPowerShare.checkConnections(adjacent, alreadyChecked, totalGenerators)
             for _, subConnection in pairs(subConnections) do
                 table.insert(connections, subConnection)
             end
@@ -82,7 +82,7 @@ function ISGenTweaksPowerShare.checkAllConnections()
     local branches = ModData.getOrCreate("GenTweaksBranches")
 
     for i, _ in pairs(adjacentTable) do
-        local connections = ISGenTweaksPowerShare.findAllConnections(i, alreadyChecked, adjacentTable)
+        local connections = ISGenTweaksPowerShare.checkConnections(i, alreadyChecked, adjacentTable)
         if connections[1] then
             if (oldShareSettings[i]) and (oldShareSettings[i] > -1) then
                 connections.share = oldShareSettings[i] else connections.share = -1
@@ -149,9 +149,6 @@ function ISGenTweaksPowerShare.splitPowerBranch(totalGenerators, branches)
         end
     end
 end
-
-
-
 
 ------------------ Returning file for 'require' ------------------
 return ISGenTweaksPowerShare
