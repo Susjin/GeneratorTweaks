@@ -44,13 +44,21 @@ end
 ---@param generator IsoGenerator Generator to get updated
 ---@param power number New power to be set
 function ISGenTweaksPowerSet.setPower(generator, power)
-    generator:setTotalPowerUsing(power)
+    if not generator then return end
+    local totalNewPower = power * SandboxVars.GeneratorFuelConsumption
+    if not (ISGenTweaksUtils.roundNumber(generator:getTotalPowerUsing(), 2) == ISGenTweaksUtils.roundNumber(totalNewPower, 2)) then
+        generator:setTotalPowerUsing(totalNewPower)
+    end
+end
 
+---Saves the given generator coordinates to the ModData
+---@param generator IsoGenerator Generator to be stored
+function ISGenTweaksPowerSet.saveGeneratorToModData(generator)
     --Storing Generator on GlobalModData
     local exists = false
     local genID = 0
     local generatorSquare = generator:getSquare()
-    local generatorData = { x = generatorSquare:getX(), y = generatorSquare:getY(), z = generatorSquare:getZ()}
+    local generatorData = {x = generatorSquare:getX(), y = generatorSquare:getY(), z = generatorSquare:getZ()}
     local genModData = ModData.getOrCreate("GenTweaksGenerators")
     for _, data in pairs(genModData) do
         if data.x == generatorData.x and data.y == generatorData.y and data.z == generatorData.z then
@@ -74,18 +82,17 @@ end
 ---Adjust the generator consumption to the REAL total power cost, only if needed
 ---@param generator IsoGenerator Generator to be updated
 function ISGenTweaksPowerSet.correctGenerator(generator)
+    if not generator then return end
     local itemList = ISGenTweaksPowerSet.getAllPowered(generator)
     local totalNewPower = ISGenTweaksPowerSet.sumPowerCost(itemList)
-    if not (ISGenTweaksUtils.roundNumber(generator:getTotalPowerUsing(), 2) == totalNewPower) then
-        ISGenTweaksPowerSet.setPower(generator, totalNewPower)
-    end
+    ISGenTweaksPowerSet.setPower(generator, totalNewPower)
 end
 
 ---Overwrite default vanilla behaviour to fix generator consumption
 local oldActivatePerform = ISActivateGenerator.perform
 function ISActivateGenerator:perform()
     oldActivatePerform(self)
-    if self.generator:isActivated() then
+    if self.activate == true then
         ISGenTweaksPowerSet.correctGenerator(self.generator)
     end
 end

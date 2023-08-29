@@ -8,6 +8,9 @@
 --- @class ISGenTweaksUtils
 local ISGenTweaksUtils = {}
 ----------------------------------------------------------------------------------------------
+--Setting up locals
+local pairs = pairs
+
 
 ---Returns the given number rounded with the number of decimal places in param2 (0 by default)
 ---@param number number Number to be rounded
@@ -28,6 +31,20 @@ function ISGenTweaksUtils.printPosFromData(table)
 		end
 	end
 end
+
+---Prints all the generator connection branches
+---@param branches table Contains all the branches of generator connections
+function ISGenTweaksUtils.printConnections(branches)
+	for i = 1, #branches do
+		print(string.format("Connections in branch %d are:", i))
+		for _, adjacent in pairs(branches[i]) do
+			print(adjacent)
+		end
+		print("")
+	end
+end
+
+
 
 ------------------ Returning file for 'require' ------------------
 return ISGenTweaksUtils
