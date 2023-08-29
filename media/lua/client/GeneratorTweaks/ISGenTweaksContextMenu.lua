@@ -9,20 +9,9 @@ local ISGenTweaksContextMenu = {}
 ----------------------------------------------------------------------------------------------
 --Setting up locals
 local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
-local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
-local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
-local pairs = pairs
-
-function ISGenTweaksContextMenu.splitPowerBranch()
-    local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-    if not totalGenerators then return end
-    local branches = ModData.getOrCreate("GenTweaksBranches")
-    if not branches then return end
-
-    for i, _ in pairs(totalGenerators) do
-
-    end
-end
+--local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
+--local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
+--local pairs = pairs
 
 ---Creates the ContextMenu option when clicking a generator
 ---@param _player number Player index number
@@ -38,8 +27,9 @@ function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
     end
 
     if generator then
-        context:addOption("Save ModData", player, ISGenTweaksPowerShare.getAdjacentGenerators)
+        context:addOption("Save ModData", player, ISGenTweaksPowerShare.getAllAdjacentGenerators)
         context:addOption("Check Branches", player, ISGenTweaksPowerShare.checkAllConnections)
+        context:addOption("SplitPower in all branches", player, ISGenTweaksPowerShare.splitPowerBranch)
     end
 end
 Events.OnFillWorldObjectContextMenu.Add(ISGenTweaksContextMenu.onContextMenu)

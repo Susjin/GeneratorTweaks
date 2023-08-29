@@ -24,12 +24,9 @@ end
 ---Prints the coordinates of a IsoGridSquare
 ---@param table table Contains a x, y and z index for the position of a IsoGridSquare
 function ISGenTweaksUtils.printPosFromData(table)
-	for i = 1, #table do
-		local square = getCell():getGridSquare(table[i].x, table[i].y, table[i].z)
-		if square then
-			print(string.format("X: %d, Y: %d, Z: %d", square:getX(), square:getY(), square:getZ()))
-		end
-	end
+	--for _, data in pairs(table) do
+		print(string.format("X: %d, Y: %d, Z: %d", table.x, table.y, table.z))
+	--end
 end
 
 ---Prints all the generator connection branches
@@ -41,6 +38,48 @@ function ISGenTweaksUtils.printConnections(branches)
 			print(adjacent)
 		end
 		print("")
+	end
+end
+
+---Gets a generator from a XYZ coordinates
+---@param genXYZ table Contains the coordinates of a grid square
+---@return IsoGenerator Generator is that grid square
+function ISGenTweaksUtils.getGeneratorFromPos(genXYZ)
+	local square = getCell():getGridSquare(genXYZ.x, genXYZ.y, genXYZ.z)
+	if square then
+		local generator = square:getGenerator()
+		if generator then
+			return generator
+		end
+	end
+	return nil
+end
+
+---Saves the given generator coordinates to the ModData
+---@param generator IsoGenerator Generator to be stored
+function ISGenTweaksUtils.saveGeneratorToModData(generator)
+	--Storing Generator on GlobalModData
+	local exists = false
+	local genID = 0
+	local generatorSquare = generator:getSquare()
+	local generatorData = {x = generatorSquare:getX(), y = generatorSquare:getY(), z = generatorSquare:getZ()}
+	local genModData = ModData.getOrCreate("GenTweaksGenerators")
+	for _, data in pairs(genModData) do
+		if data.x == generatorData.x and data.y == generatorData.y and data.z == generatorData.z then
+			exists = true
+		end
+	end
+	if not exists then
+		repeat
+			local sameID = false
+			genID = ZombRand(9999)
+			for i,_ in pairs(genModData) do
+				if i == genID then
+					sameID = true
+				end
+			end
+		until (sameID == false)
+		genModData[genID] = generatorData
 	end
 end
 

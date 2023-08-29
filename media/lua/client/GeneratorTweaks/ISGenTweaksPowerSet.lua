@@ -51,34 +51,6 @@ function ISGenTweaksPowerSet.setPower(generator, power)
     end
 end
 
----Saves the given generator coordinates to the ModData
----@param generator IsoGenerator Generator to be stored
-function ISGenTweaksPowerSet.saveGeneratorToModData(generator)
-    --Storing Generator on GlobalModData
-    local exists = false
-    local genID = 0
-    local generatorSquare = generator:getSquare()
-    local generatorData = {x = generatorSquare:getX(), y = generatorSquare:getY(), z = generatorSquare:getZ()}
-    local genModData = ModData.getOrCreate("GenTweaksGenerators")
-    for _, data in pairs(genModData) do
-        if data.x == generatorData.x and data.y == generatorData.y and data.z == generatorData.z then
-            exists = true
-        end
-    end
-    if not exists then
-        repeat
-            local sameID = false
-            genID = ZombRand(9999)
-            for i,_ in pairs(genModData) do
-                if i == genID then
-                    sameID = true
-                end
-            end
-        until (sameID == false)
-        genModData[genID] = generatorData
-    end
-end
-
 ---Adjust the generator consumption to the REAL total power cost, only if needed
 ---@param generator IsoGenerator Generator to be updated
 function ISGenTweaksPowerSet.correctGenerator(generator)
@@ -94,6 +66,7 @@ function ISActivateGenerator:perform()
     oldActivatePerform(self)
     if self.activate == true then
         ISGenTweaksPowerSet.correctGenerator(self.generator)
+        ISGenTweaksUtils.saveGeneratorToModData(self.generator)
     end
 end
 
