@@ -1,0 +1,14 @@
+IGUI_PTBR = {
+
+    IGUI_GenTweaks_NotInModData = "Este gerador não está sendo controlado por Generator Tweaks. <LINE> Por-favor, reinicie este gerador.",
+    IGUI_GenTweaks_NoPowerSetting = "Desativado",
+    IGUI_GenTweaks_PowerSplit = "Dividir consumo de energia",
+    IGUI_GenTweaks_PowerFocus = "Concentrar consumo de energia",
+    IGUI_GenTweaks_PowerFocusGen = "Concentrado no gerador: ID %1",
+    IGUI_GenTweaks_NeedsCorrection = "(aguardando atualização)",
+    IGUI_GenTweaks_BranchInfo = "Árvore ID %1:",
+    IGUI_GenTweaks_BranchTotalGen = "Total de geradores: %1",
+    IGUI_GenTweaks_BranchTotalPower = "Total de energia: %1",
+    IGUI_GenTweaks_BranchMode = "Config. de energia: ",
+
+}

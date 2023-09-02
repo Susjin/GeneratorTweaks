@@ -10,10 +10,12 @@ local ISGenTweaksContextMenu = {}
 ----------------------------------------------------------------------------------------------
 --Setting up locals
 local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
-local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
+--local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 --local pairs = pairs
 
+
+-- ---------------- Functions related to actions on the ContextMenu ---------------- --
 ---Sets the current generator to be the focus of power consumption of the whole branch it is in
 ---@param generator IsoGenerator Generator being interacted with
 function ISGenTweaksContextMenu.setFocusPower(generator)
@@ -22,8 +24,8 @@ function ISGenTweaksContextMenu.setFocusPower(generator)
 
     local genID = ISGenTweaksUtils.getIDFromGenerator(generator) --Gets the ID, if non-existent, create one
     if genID == -1 then ISGenTweaksUtils.saveGeneratorToModData(generator); genID = ISGenTweaksUtils.getIDFromGenerator(generator); end
-    local branchIndex = ISGenTweaksUtils.getBranchFromID(branches, genID) --Gets the branch, if non-existent, put in one
-    if branchIndex == -1 then ISGenTweaksPowerShare.checkAllConnections(); branchIndex = ISGenTweaksUtils.getBranchFromID(branches, genID); end
+    local branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID) --Gets the branch, if non-existent, put in one
+    if branchIndex == -1 then ISGenTweaksPowerShare.checkAllConnections(); branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID); end
 
     if (genID ~= -1) and (branchIndex ~= -1) then
         branches[branchIndex].share = genID
@@ -38,16 +40,15 @@ function ISGenTweaksContextMenu.setSplitPower(generator)
 
     local genID = ISGenTweaksUtils.getIDFromGenerator(generator) --Gets the ID, if non-existent, create one
     if genID == -1 then ISGenTweaksUtils.saveGeneratorToModData(generator); genID = ISGenTweaksUtils.getIDFromGenerator(generator); end
-    local branchIndex = ISGenTweaksUtils.getBranchFromID(branches, genID) --Gets the branch, if non-existent, put in one
-    if branchIndex == -1 then ISGenTweaksPowerShare.checkAllConnections(); branchIndex = ISGenTweaksUtils.getBranchFromID(branches, genID); end
+    local branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID) --Gets the branch, if non-existent, put in one
+    if branchIndex == -1 then ISGenTweaksPowerShare.checkAllConnections(); branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID); end
 
     if branchIndex ~= -1 then
         branches[branchIndex].share = 0
     end
 end
 
------------------- Functions related to ContextMenu ------------------
-
+-- ---------------- Functions related to ContextMenu ---------------- --
 ---Creates the ContextMenu option when clicking a generator
 ---@param _player number Player index number
 ---@param context ISContextMenu Generated ContextMenu
@@ -65,22 +66,17 @@ function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
         context:addOption("Check Branches", player, ISGenTweaksPowerShare.checkAllConnections)
         context:addOption("Split", generator, ISGenTweaksContextMenu.setSplitPower)
         context:addOption("Focus", generator, ISGenTweaksContextMenu.setFocusPower)
+
+        local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
+        if genID > 0 then
+            local option = context:getOptionFromName(getText("ContextMenu_GeneratorInfo"))
+            option.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
+        end
     end
 end
 Events.OnFillWorldObjectContextMenu.Add(ISGenTweaksContextMenu.onContextMenu)
 
------------------- Functions related to Vanilla Overrides ------------------
 
----Overwrite default vanilla behaviour to fix generator consumption
-local oldActivatePerform = ISActivateGenerator.perform
-function ISActivateGenerator:perform()
-    oldActivatePerform(self)
-    if self.activate == true then
-        ISGenTweaksPowerSet.correctGenerator(self.generator)
-        ISGenTweaksUtils.saveGeneratorToModData(self.generator)
-        ISGenTweaksPowerShare.checkAllConnections()
-    end
-end
 
 ------------------ Returning file for 'require' ------------------
 return ISGenTweaksContextMenu

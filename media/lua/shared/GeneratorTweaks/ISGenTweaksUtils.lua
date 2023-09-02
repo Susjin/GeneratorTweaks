@@ -54,16 +54,20 @@ end
 
 ------------------ Functions related to general Generator interactions ------------------
 
-function ISGenTweaksUtils.checkFocusGenerator(totalGenerators, shareValue)
+function ISGenTweaksUtils.getShareSetting(shareValue)
+	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
+	if not totalGenerators then return end
+
 	if shareValue == 0 then return 1 end
 	if shareValue > 0 then
-		local genTest = ISGenTweaksUtils.getGeneratorFromPos(totalGenerators[shareValue])
-		if genTest and genTest:isActivated() then
+		local genExists = ISGenTweaksUtils.getGeneratorFromPos(totalGenerators[shareValue])
+		if genExists and genExists:isActivated() then
 			return 2
 		else
 			return 1
 		end
 	end
+	return 0
 end
 
 ---Gets a generator from a XYZ coordinates
@@ -88,12 +92,13 @@ end
 function ISGenTweaksUtils.getIDFromGenerator(generator)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
 	if not totalGenerators then return end
-
-	local square = generator:getSquare()
-	local squarePos = {x = square:getX(), y = square:getY(), z = square:getZ()}
-	for i, data in pairs(totalGenerators) do
-		if (data.x == squarePos.x) and (data.y == squarePos.y) and (data.y == squarePos.y) then
-			return i
+	if instanceof(generator, "IsoGenerator") then
+		local square = generator:getSquare()
+		local squarePos = {x = square:getX(), y = square:getY(), z = square:getZ()}
+		for i, data in pairs(totalGenerators) do
+			if (data.x == squarePos.x) and (data.y == squarePos.y) and (data.y == squarePos.y) then
+				return i
+			end
 		end
 	end
 	return -1
@@ -103,7 +108,7 @@ end
 ---@param branches KahluaTable ModData table containing all generators 'branches' in the world
 ---@param id number Generator ID in ModData table
 ---@return number The branch index that the generator is located (-1 if non-existent)
-function ISGenTweaksUtils.getBranchFromID(branches, id)
+function ISGenTweaksUtils.getBranchFromGeneratorID(branches, id)
 	for i, data in pairs(branches) do
 		for j = 1, #data do
 			if branches[i][j] == id then
@@ -113,6 +118,48 @@ function ISGenTweaksUtils.getBranchFromID(branches, id)
 	end
 	return -1
 end
+
+function ISGenTweaksUtils.getBranchModeFromID(branches, branchID)
+	local focus = ISGenTweaksUtils.getShareSetting(branches[branchID].share)
+	if focus == 0 then
+		return getText("IGUI_GenTweaks_NoPowerSetting")
+	elseif focus == 1 then
+		return getText("IGUI_GenTweaks_PowerSplit")
+	elseif focus == 2 then
+		local text = getText("IGUI_GenTweaks_PowerFocus", branches[branchID].share)
+		return text
+	end
+end
+
+function ISGenTweaksUtils.getBranchTotalPowerFromID(branches, branchID)
+	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
+	if not totalGenerators then return end
+
+	local branchPower = {}
+	branchPower.total = 0
+	branchPower.count = 0
+	for j = 1, #branches[branchID] do
+		local generator = ISGenTweaksUtils.getGeneratorFromPos(totalGenerators[branches[branchID][j]])
+		if instanceof(generator, "IsoGenerator") and generator:isActivated() then
+			branchPower.total = branchPower.total + generator:getTotalPowerUsing()
+			branchPower.count = branchPower.count + 1
+			--ISGenTweaksUtils.debugMessage(string.format("Branch %d current: sum: %.2f | count: %d", branchID, branchPower.total, branchPower.count))
+		end
+	end
+	return branchPower
+end
+
+function ISGenTweaksUtils.getBranchEachPowerFromID(share, branchPower)
+	local shareSetting = ISGenTweaksUtils.getShareSetting(share)
+	if shareSetting == 1 then
+		local average = (branchPower.total / branchPower.count)
+		if branchPower.count == 0 then average = 0 end
+		return ISGenTweaksUtils.roundNumber(average, 5)
+	elseif shareSetting == 2 then
+		return ISGenTweaksUtils.roundNumber(branchPower.total, 5)
+	end
+end
+
 
 ---Saves the given generator coordinates to the ModData
 ---@param generator IsoGenerator Generator to be stored

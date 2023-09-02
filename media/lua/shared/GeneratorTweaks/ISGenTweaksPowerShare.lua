@@ -91,7 +91,7 @@ function ISGenTweaksPowerShare.checkAllConnections()
             table.insert(branches, i,connections)
         end
     end
-    ISGenTweaksUtils.printConnections(branches)
+    --ISGenTweaksUtils.printConnections(branches)
 end
 
 ---Gets a sum of power using on generators in the same branch, and split it between all
@@ -105,46 +105,49 @@ function ISGenTweaksPowerShare.splitPowerBranch(totalGenerators, branches)
     --First we get the sum of all generators and make a average
     for i, data in pairs(branches) do
         if not ((data.share == -1) or (data.share == nil)) then
-            local shareSetting = ISGenTweaksUtils.checkFocusGenerator(totalGenerators, data.share)
 
-            branchPower[i] = {}
-            branchPower[i].sum = 0
-            branchPower[i].count = 0
-            for j = 1, #data do
-                local generator = ISGenTweaksUtils.getGeneratorFromPos(totalGenerators[data[j]])
-                if generator and generator:isActivated() then
-                    branchPower[i].sum = branchPower[i].sum + generator:getTotalPowerUsing()
-                    branchPower[i].count = branchPower[i].count + 1
-                    ISGenTweaksUtils.debugMessage(string.format("Branch %d current: sum: %.2f | count: %d", i, branchPower[i].sum, branchPower[i].count))
-                end
-            end
-            if shareSetting == 1 then
-                local average = (branchPower[i].sum / branchPower[i].count)
-                if branchPower[i].count == 0 then average = 0 end
-                branchPower[i] = ISGenTweaksUtils.roundNumber(average, 2)
-            elseif shareSetting == 2 then
-                branchPower[i] = ISGenTweaksUtils.roundNumber(branchPower[i].sum, 2)
-            end
-            ISGenTweaksUtils.debugMessage(string.format("Branch %d | current total power: %.2f", i, branchPower[i]))
+
+            branchPower[i] = ISGenTweaksUtils.getBranchTotalPowerFromID(branches, i)
+            --branchPower[i].sum = 0
+            --branchPower[i].count = 0
+            --for j = 1, #data do
+            --    local generator = ISGenTweaksUtils.getGeneratorFromPos(totalGenerators[data[j]])
+            --    if generator and generator:isActivated() then
+            --        branchPower[i].sum = branchPower[i].sum + generator:getTotalPowerUsing()
+            --        branchPower[i].count = branchPower[i].count + 1
+            --        ISGenTweaksUtils.debugMessage(string.format("Branch %d current: sum: %.2f | count: %d", i, branchPower[i].sum, branchPower[i].count))
+            --    end
+            --end
+
+            branchPower[i].set = ISGenTweaksUtils.getBranchEachPowerFromID(data.share, branchPower[i])
+            --local shareSetting = ISGenTweaksUtils.checkFocusGenerator(data.share)
+            --if shareSetting == 1 then
+            --    local average = (branchPower[i].sum / branchPower[i].count)
+            --    if branchPower[i].count == 0 then average = 0 end
+            --    branchPower[i] = ISGenTweaksUtils.roundNumber(average, 2)
+            --elseif shareSetting == 2 then
+            --    branchPower[i] = ISGenTweaksUtils.roundNumber(branchPower[i].sum, 2)
+            --end
+            --ISGenTweaksUtils.debugMessage(string.format("Branch %d | current total power: %.2f", i, branchPower[i]))
         end
     end
     --Split all power between generators
     for i, data in pairs(branches) do
         if not ((data.share == -1) or (data.share == nil)) then
-            local shareSetting = ISGenTweaksUtils.checkFocusGenerator(totalGenerators, data.share)
+            local shareSetting = ISGenTweaksUtils.getShareSetting(data.share)
             for j = 1, #data do
                 local generator = ISGenTweaksUtils.getGeneratorFromPos(totalGenerators[data[j]])
                 if generator and generator:isActivated() then
                     if shareSetting == 1 then
-                        generator:setTotalPowerUsing(branchPower[i])
+                        generator:setTotalPowerUsing(branchPower[i].set)
                     elseif shareSetting == 2 then
                         if data[j] ~= data.share then
                             generator:setTotalPowerUsing(0)
                         else
-                            generator:setTotalPowerUsing(branchPower[i])
+                            generator:setTotalPowerUsing(branchPower[i].set)
                         end
                     end
-                    ISGenTweaksUtils.debugMessage(string.format("Power %.2f set to branch %d", branchPower[i], i))
+                    --ISGenTweaksUtils.debugMessage(string.format("Power %.2f set to branch %d", branchPower[i].set, i))
                 end
             end
         end
