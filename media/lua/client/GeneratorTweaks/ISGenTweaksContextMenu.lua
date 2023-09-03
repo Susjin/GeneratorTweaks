@@ -16,6 +16,9 @@ local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 
 
 -- ---------------- Functions related to Tooltips on the ContextMenu ---------------- --
+---Creates a tooltip for the option 'Take Generator'
+---@param takeOption table Contains the given option to set a tooltip
+---@param genID number Tooltip's Generator ID
 function ISGenTweaksContextMenu.takeGeneratorTooltip(takeOption, genID)
     local colors = ISGenTweaksUtils.getColorsFromAcessibility()
     takeOption.toolTip = ISToolTip:new()
@@ -29,19 +32,13 @@ function ISGenTweaksContextMenu.takeGeneratorTooltip(takeOption, genID)
 end
 
 
-
-
 -- ---------------- Functions related to actions on the ContextMenu ---------------- --
 ---Sets the current generator to be the focus of power consumption of the whole branch it is in
 ---@param generator IsoGenerator Generator being interacted with
-function ISGenTweaksContextMenu.setFocusPower(generator)
-    local branches = ModData.getOrCreate("GenTweaksBranches")
-    if not branches then return end
-
+---@param branches KahluaTable ModData table containing all generators 'branches' in the world
+function ISGenTweaksContextMenu.setFocusPower(generator, branches)
     local genID = ISGenTweaksUtils.getIDFromGenerator(generator) --Gets the ID, if non-existent, create one
-    if genID == -1 then ISGenTweaksUtils.saveGeneratorToModData(generator); genID = ISGenTweaksUtils.getIDFromGenerator(generator); end
     local branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID) --Gets the branch, if non-existent, put in one
-    if branchIndex == -1 then ISGenTweaksPowerShare.checkAllConnections(); branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID); end
 
     if (genID ~= -1) and (branchIndex ~= -1) then
         branches[branchIndex].share = genID
@@ -50,17 +47,25 @@ end
 
 ---Sets the current branch the generator is in to split all it's power consumption between generators
 ---@param generator IsoGenerator Generator being interacted with
-function ISGenTweaksContextMenu.setSplitPower(generator)
-    local branches = ModData.getOrCreate("GenTweaksBranches")
-    if not branches then return end
-
-    local genID = ISGenTweaksUtils.getIDFromGenerator(generator) --Gets the ID, if non-existent, create one
-    if genID == -1 then ISGenTweaksUtils.saveGeneratorToModData(generator); genID = ISGenTweaksUtils.getIDFromGenerator(generator); end
-    local branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID) --Gets the branch, if non-existent, put in one
-    if branchIndex == -1 then ISGenTweaksPowerShare.checkAllConnections(); branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID); end
+---@param branches KahluaTable ModData table containing all generators 'branches' in the world
+function ISGenTweaksContextMenu.setSplitPower(generator, branches)
+    local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
+    local branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
 
     if branchIndex ~= -1 then
         branches[branchIndex].share = 0
+    end
+end
+
+---Sets the current branch the generator is in to disable it's split power setting
+---@param generator IsoGenerator Generator being interacted with
+---@param branches KahluaTable ModData table containing all generators 'branches' in the world
+function ISGenTweaksContextMenu.setDisablePower(generator, branches)
+    local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
+    local branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
+
+    if branchIndex ~= -1 then
+        branches[branchIndex].share = -1
     end
 end
 
@@ -80,17 +85,21 @@ function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
     end
 
     if generator then
-        local branches = ModData.getOrCreate("GenTweaksBranches")
-
-        context:addOption("Split", generator, ISGenTweaksContextMenu.setSplitPower)
-        context:addOption("Focus", generator, ISGenTweaksContextMenu.setFocusPower)
-
         local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
         if genID > 0 then
+            local branches = ModData.getOrCreate("GenTweaksBranches")
+            --Branch settings options
+            if generator:isActivated() then
+                context:insertOptionAfter(getText("ContextMenu_Turn_Off"), getText("ContextMenu_GenTweaks_Split"), generator, ISGenTweaksContextMenu.setSplitPower, branches)
+                context:insertOptionAfter(getText("ContextMenu_GenTweaks_Split"), getText("ContextMenu_GenTweaks_Focus"), generator, ISGenTweaksContextMenu.setFocusPower, branches)
+                context:insertOptionAfter(getText("ContextMenu_GenTweaks_Focus"), getText("ContextMenu_GenTweaks_Disable"), generator, ISGenTweaksContextMenu.setDisablePower, branches)
+            end
+            --Override tooltip of 'Generator info' option
             if player:DistToSquared(generator:getX() + 0.5, generator:getY() + 0.5) < 2 * 2 then
                 local option = context:getOptionFromName(getText("ContextMenu_GeneratorInfo"))
                 option.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
             end
+            --Override tooltip of the 'Take generator' option
             if branches and not generator:isConnected() then
                 local branchID = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
                 if genID == branchID then
@@ -102,7 +111,6 @@ function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
     end
 end
 Events.OnFillWorldObjectContextMenu.Add(ISGenTweaksContextMenu.onContextMenu)
-
 
 
 ------------------ Returning file for 'require' ------------------

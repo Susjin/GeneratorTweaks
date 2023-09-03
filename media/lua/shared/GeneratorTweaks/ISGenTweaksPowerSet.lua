@@ -19,6 +19,7 @@ local powerGeneratorConstant = 0.02
 
 ---Gets all the powered items from the generator and splits then into a table
 ---@param generator IsoGenerator Generator which we're getting the items from
+---@return table Containing all the items powered by the given generator (formatted)
 function ISGenTweaksPowerSet.getAllItemsPowered(generator)
     local poweredList = generator:getItemsPowered()
     local itemsPowered = {}
@@ -34,8 +35,9 @@ function ISGenTweaksPowerSet.getAllItemsPowered(generator)
     return itemsPowered
 end
 
----Get the REAL total power a generator is outputting from a table
+---Get the REAL total power a generator is consuming
 ---@param generator IsoGenerator Generator which we're calculating the real total power
+---@return number The real power consumption of a specific generator (5 decimals)
 function ISGenTweaksPowerSet.calculateTotalPower(generator)
     local itemsPowered = ISGenTweaksPowerSet.getAllItemsPowered(generator)
     local sum = 0
@@ -47,14 +49,14 @@ function ISGenTweaksPowerSet.calculateTotalPower(generator)
 end
 
 ---Adjust the generator consumption to the REAL total power cost
----@param generator IsoGenerator Generator to be updated
+---@param generator IsoGenerator Generator to be corrected
 function ISGenTweaksPowerSet.correctGenerator(generator)
     if not generator then return end
     local totalNewPower = ISGenTweaksPowerSet.calculateTotalPower(generator)
     generator:setTotalPowerUsing(totalNewPower)
 end
 
----Correct all generators that are in the ModData
+---Correct all generators that are in the ModData table
 ---@param totalGenerators KahluaTable ModData table containing all generators IDs and pos
 function ISGenTweaksPowerSet.correctAllGenerators(totalGenerators)
     for i, data in pairs(totalGenerators) do
@@ -62,7 +64,7 @@ function ISGenTweaksPowerSet.correctAllGenerators(totalGenerators)
             local generator = ISGenTweaksUtils.getGeneratorFromPos(data)
             if not instanceof(generator, "IsoGenerator") then
                 totalGenerators[i] = nil
-                ISGenTweaksPowerShare.checkAllConnections()
+                ISGenTweaksPowerShare.createAllBranches()
             else
                 if generator:isActivated() then
                     ISGenTweaksPowerSet.correctGenerator(generator)

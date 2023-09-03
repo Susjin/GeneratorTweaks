@@ -30,12 +30,12 @@ function ISActivateGenerator:perform()
     if self.activate == true then
         ISGenTweaksPowerSet.correctGenerator(self.generator)
         ISGenTweaksUtils.saveGeneratorToModData(self.generator)
-        ISGenTweaksPowerShare.checkAllConnections()
+        ISGenTweaksPowerShare.createAllBranches()
     end
 end
 
 -- ---------------- Functions related to the Generator InfoWindow ---------------- --
-
+---Overwrite default vanilla behaviour to set the name of the Generator InfoWindow
 local oldSetObject = ISGeneratorInfoWindow.setObject
 function ISGeneratorInfoWindow:setObject(object)
     oldSetObject(self, object)
@@ -43,6 +43,7 @@ function ISGeneratorInfoWindow:setObject(object)
     if genID > 0 then self.panel:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID)) end
 end
 
+---Overwrite default vanilla behaviour to set the description of the Generator InfoWindow (Compatible with 'Generator Time Remaining')
 local oldGetRichText = ISGeneratorInfoWindow.getRichText
 function ISGeneratorInfoWindow.getRichText(object, displayStats)
     local square = object:getSquare()
@@ -69,29 +70,33 @@ function ISGeneratorInfoWindow.getRichText(object, displayStats)
             text = text .. "   " .. items:get(i) .. " <LINE> ";
         end
         text = text .. getText("IGUI_Total") .. ": " .. ISGenTweaksUtils.roundNumber(object:getTotalPowerUsing(), 2) .. " L/h"
-
-        --Appliances related to the branch
     end
-    text = ISGenTweaksOverride.setTextForDescription(object, text, object:isActivated())
+    --All the new branch information
+    text = ISGenTweaksOverride.setTextForDescription(object, text)
+
     if square and not square:isOutside() and square:getBuilding() then
         text = text .. " <LINE><LINE> " .. colors.bad .. getText("IGUI_Generator_IsToxic")
     end
     return text
 end
 
-function ISGenTweaksOverride.setTextForDescription(generator, text, isActivated)
+---Creates the description of the Branches information for the Generator InfoWindow
+---@param generator IsoGenerator Generator shown in the InfoWindow
+---@param text string Previous text description used in the InfoWindow
+function ISGenTweaksOverride.setTextForDescription(generator, text)
     local colors = ISGenTweaksUtils.getColorsFromAcessibility()
     local branches = ModData.getOrCreate("GenTweaksBranches")
     if branches then
         local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
         if genID > -1 then
             local branchID = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
-            local branchMode = ISGenTweaksUtils.getBranchModeFromID(branches, branchID)
-            local branchTotal = ISGenTweaksUtils.getBranchTotalPowerFromID(branches, branchID)
-            local branchEach = ISGenTweaksUtils.getBranchEachPowerFromID(branches[branchID].share, branchTotal)
+            local branchMode = ISGenTweaksUtils.getBranchModeFromID(branches[branchID])
+            local branchTotal = ISGenTweaksUtils.getBranchTotalPowerFromID(branches[branchID])
+            local branchEach = ISGenTweaksUtils.getBranchEachPowerFromTotal(branches[branchID].share, branchTotal)
             local shareSetting = ISGenTweaksUtils.getShareSetting(branches[branchID].share)
             local correctedPower = ISGenTweaksUtils.roundNumber(ISGenTweaksPowerSet.calculateTotalPower(generator), 2)
             local currentPower = ISGenTweaksUtils.roundNumber(generator:getTotalPowerUsing(), 2)
+            local isActivated = generator:isActivated()
 
             if shareSetting == 0 then
                 if (currentPower ~= correctedPower) and isActivated then

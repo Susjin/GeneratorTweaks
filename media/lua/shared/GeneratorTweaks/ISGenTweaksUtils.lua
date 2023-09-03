@@ -21,6 +21,8 @@ function ISGenTweaksUtils.debugMessage(message)
 	end
 end
 
+---Get all the Good/Bad colors from acessibility settings
+---@return table Containing the colors white, good and bad
 function ISGenTweaksUtils.getColorsFromAcessibility()
 	local colors = {}
 	colors.white = " <RGB:1,1,1> "
@@ -60,6 +62,9 @@ function ISGenTweaksUtils.printConnections(branches)
 end
 
 -- ---------------- Functions related to general Generator interactions ---------------- --
+---Gets the current setting of a branch from it's value
+---@param shareValue number	'share' index inside the Branch's ModData table
+---@return number Setting to be tested when applying power split
 function ISGenTweaksUtils.getShareSetting(shareValue)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
 	if not totalGenerators then return end
@@ -125,19 +130,25 @@ function ISGenTweaksUtils.getBranchFromGeneratorID(branches, id)
 	return -1
 end
 
-function ISGenTweaksUtils.getBranchModeFromID(branches, branchID)
-	local focus = ISGenTweaksUtils.getShareSetting(branches[branchID].share)
+---Gets a text with the current mode of a given Branch
+---@param branches KahluaTable ModData table containing all data from the given Branch
+---@return string Text with the correct 'Power setting' of that branch
+function ISGenTweaksUtils.getBranchModeFromID(branches)
+	local focus = ISGenTweaksUtils.getShareSetting(branches.share)
 	if focus == 0 then
 		return getText("IGUI_GenTweaks_NoPowerSetting")
 	elseif focus == 1 then
 		return getText("IGUI_GenTweaks_PowerSplit")
 	elseif focus == 2 then
-		local text = getText("IGUI_GenTweaks_PowerFocus", branches[branchID].share)
+		local text = getText("IGUI_GenTweaks_PowerFocus", branches.share)
 		return text
 	end
 end
 
-function ISGenTweaksUtils.getBranchTotalPowerFromID(branches, branchID)
+---Get the total power a whole Branch of generators is consuming
+---@param branches KahluaTable ModData table containing all data from the given Branch
+---@return table Contains the index 'total' and 'count' with the total power and amount of generators counted
+function ISGenTweaksUtils.getBranchTotalPowerFromID(branches)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
 	if not totalGenerators then return end
 
@@ -155,7 +166,11 @@ function ISGenTweaksUtils.getBranchTotalPowerFromID(branches, branchID)
 	return branchPower
 end
 
-function ISGenTweaksUtils.getBranchEachPowerFromID(share, branchPower)
+---Gets the power that needs to be set to each generator in a Branch
+---@param share number 'share' index of the given Branch
+---@param branchPower table Contains the index 'total' and 'count' with the total power and amount of generators counted
+---@return number Power to be set in each generator
+function ISGenTweaksUtils.getBranchEachPowerFromTotal(share, branchPower)
 	local shareSetting = ISGenTweaksUtils.getShareSetting(share)
 	if shareSetting == 1 then
 		local average = (branchPower.total / branchPower.count)
@@ -194,8 +209,6 @@ function ISGenTweaksUtils.saveGeneratorToModData(generator)
 		totalGenerators[genID] = generatorData
 	end
 end
-
-
 
 ------------------ Returning file for 'require' ------------------
 return ISGenTweaksUtils

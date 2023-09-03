@@ -15,10 +15,12 @@ local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
 
 ---Updates all generators on the Global ModData per in-game minute
 function ISGenTweaksUpdate.updateEveryMinute()
+    --Gets all values from Global ModData
     local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
     if not totalGenerators then return end
     local branches = ModData.getOrCreate("GenTweaksBranches")
     if not branches then return end
+
     --Corrects the weird consumption value
     ISGenTweaksPowerSet.correctAllGenerators(totalGenerators)
     --Activates PowerShare if wanted

@@ -13,11 +13,11 @@ local ISGenTweaksPowerShare = {}
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 local pairs = pairs
 
----checkRadius
----@param generator IsoGenerator
-function ISGenTweaksPowerShare.getAdjacentGenerators(generator)
-    local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-    if not totalGenerators then return end
+---Gets all the generators adjacent to a specific generator
+---@param generator IsoGenerator Generator to get the others adjacent
+---@param totalGenerators KahluaTable ModData table containing all Generator IDs
+---@return table Contains a table with all the IDs of Generators adjacent to the given generator
+function ISGenTweaksPowerShare.getAdjacentGenerators(generator, totalGenerators)
     local currentGeneratorSquare = generator:getSquare()
     local currentGeneratorAdjacent = {}
     for i, data in pairs(totalGenerators) do
@@ -30,6 +30,8 @@ function ISGenTweaksPowerShare.getAdjacentGenerators(generator)
     return currentGeneratorAdjacent
 end
 
+---Checks the adjacency of all generators in the ModData table
+---@return table Contains all generators in the ModData with their respective adjacency
 function ISGenTweaksPowerShare.getAllAdjacentGenerators()
     local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
     if not totalGenerators then return end
@@ -38,13 +40,13 @@ function ISGenTweaksPowerShare.getAllAdjacentGenerators()
     for i, data in pairs(totalGenerators) do
         local generator = ISGenTweaksUtils.getGeneratorFromPos(data)
         if generator then
-            adjacentGenerators[i] = ISGenTweaksPowerShare.getAdjacentGenerators(generator)
+            adjacentGenerators[i] = ISGenTweaksPowerShare.getAdjacentGenerators(generator, totalGenerators)
         end
     end
     return adjacentGenerators
 end
 
----Return all the connections of a given generator
+---Return all the connections of a given generator (For creating a branch)
 ---@param generatorID number Generator ID to be checked on the ModData table
 ---@param alreadyChecked table Table containing all Generator IDs already checked
 ---@param totalGenerators KahluaTable ModData table containing all Generator IDs
@@ -66,7 +68,7 @@ function ISGenTweaksPowerShare.checkConnections(generatorID, alreadyChecked, tot
 end
 
 ---Checks all adjacent generators and organize them in branches
-function ISGenTweaksPowerShare.checkAllConnections()
+function ISGenTweaksPowerShare.createAllBranches()
     local adjacentTable = ISGenTweaksPowerShare.getAllAdjacentGenerators()
     local alreadyChecked = {}
     local oldShareSettings = {}
@@ -94,7 +96,7 @@ function ISGenTweaksPowerShare.checkAllConnections()
     --ISGenTweaksUtils.printConnections(branches)
 end
 
----Gets a sum of power using on generators in the same branch, and split it between all
+---Gets a sum of power using on generators in the same branch, and split it between all according to the setting
 ---@param totalGenerators KahluaTable ModData table containing all the generators in the world
 ---@param branches KahluaTable ModData table containing all generators 'branches' in the world
 function ISGenTweaksPowerShare.splitPowerBranch(totalGenerators, branches)
@@ -105,30 +107,8 @@ function ISGenTweaksPowerShare.splitPowerBranch(totalGenerators, branches)
     --First we get the sum of all generators and make a average
     for i, data in pairs(branches) do
         if not ((data.share == -1) or (data.share == nil)) then
-
-
-            branchPower[i] = ISGenTweaksUtils.getBranchTotalPowerFromID(branches, i)
-            --branchPower[i].sum = 0
-            --branchPower[i].count = 0
-            --for j = 1, #data do
-            --    local generator = ISGenTweaksUtils.getGeneratorFromPos(totalGenerators[data[j]])
-            --    if generator and generator:isActivated() then
-            --        branchPower[i].sum = branchPower[i].sum + generator:getTotalPowerUsing()
-            --        branchPower[i].count = branchPower[i].count + 1
-            --        ISGenTweaksUtils.debugMessage(string.format("Branch %d current: sum: %.2f | count: %d", i, branchPower[i].sum, branchPower[i].count))
-            --    end
-            --end
-
-            branchPower[i].set = ISGenTweaksUtils.getBranchEachPowerFromID(data.share, branchPower[i])
-            --local shareSetting = ISGenTweaksUtils.checkFocusGenerator(data.share)
-            --if shareSetting == 1 then
-            --    local average = (branchPower[i].sum / branchPower[i].count)
-            --    if branchPower[i].count == 0 then average = 0 end
-            --    branchPower[i] = ISGenTweaksUtils.roundNumber(average, 2)
-            --elseif shareSetting == 2 then
-            --    branchPower[i] = ISGenTweaksUtils.roundNumber(branchPower[i].sum, 2)
-            --end
-            --ISGenTweaksUtils.debugMessage(string.format("Branch %d | current total power: %.2f", i, branchPower[i]))
+            branchPower[i] = ISGenTweaksUtils.getBranchTotalPowerFromID(branches[i])
+            branchPower[i].set = ISGenTweaksUtils.getBranchEachPowerFromTotal(data.share, branchPower[i])
         end
     end
     --Split all power between generators
