@@ -70,7 +70,9 @@ function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
         local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
         if genID > 0 then
             local option = context:getOptionFromName(getText("ContextMenu_GeneratorInfo"))
-            option.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
+            if player:DistToSquared(generator:getX() + 0.5, generator:getY() + 0.5) < 2 * 2 then
+                option.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
+            end
         end
     end
 end
