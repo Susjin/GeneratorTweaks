@@ -9,7 +9,7 @@
 local ISGenTweaksContextMenu = {}
 ----------------------------------------------------------------------------------------------
 --Setting up locals
-local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
+--local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 --local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 --local pairs = pairs
@@ -72,9 +72,9 @@ end
 -- ---------------- Functions related to ContextMenu ---------------- --
 ---Creates the ContextMenu option when clicking a generator
 ---@param _player number Player index number
----@param context ISContextMenu Generated ContextMenu
+---@param contextMenu ISContextMenu Generated ContextMenu
 ---@param worldObjects table<number, IsoObject> Table containing objects on the clicked position
-function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
+function ISGenTweaksContextMenu.onContextMenu(_player, contextMenu, worldObjects)
     local player = getSpecificPlayer(_player)
     ---@type IsoGenerator
     local generator
@@ -90,20 +90,26 @@ function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
             local branches = ModData.getOrCreate("GenTweaksBranches")
             --Branch settings options
             if generator:isActivated() then
-                context:insertOptionAfter(getText("ContextMenu_Turn_Off"), getText("ContextMenu_GenTweaks_Split"), generator, ISGenTweaksContextMenu.setSplitPower, branches)
-                context:insertOptionAfter(getText("ContextMenu_GenTweaks_Split"), getText("ContextMenu_GenTweaks_Focus"), generator, ISGenTweaksContextMenu.setFocusPower, branches)
-                context:insertOptionAfter(getText("ContextMenu_GenTweaks_Focus"), getText("ContextMenu_GenTweaks_Disable"), generator, ISGenTweaksContextMenu.setDisablePower, branches)
+                --Creating submenu
+                local generatorMenu = contextMenu:insertOptionAfter(getText("ContextMenu_Turn_Off"), getText("ContextMenu_GenTweaks_BranchMenu"), worldObjects, nil)
+                ---@type ISContextMenu
+                local generatorSubMenu = ISContextMenu:getNew(contextMenu)
+                contextMenu:addSubMenu(generatorMenu, generatorSubMenu)
+                --Adding options
+                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Split"), generator, ISGenTweaksContextMenu.setSplitPower, branches)
+                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Focus"), generator, ISGenTweaksContextMenu.setFocusPower, branches)
+                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Disable"), generator, ISGenTweaksContextMenu.setDisablePower, branches)
             end
             --Override tooltip of 'Generator info' option
             if player:DistToSquared(generator:getX() + 0.5, generator:getY() + 0.5) < 2 * 2 then
-                local option = context:getOptionFromName(getText("ContextMenu_GeneratorInfo"))
+                local option = contextMenu:getOptionFromName(getText("ContextMenu_GeneratorInfo"))
                 option.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
             end
             --Override tooltip of the 'Take generator' option
             if branches and not generator:isConnected() then
                 local branchID = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
                 if genID == branchID then
-                    local option = context:getOptionFromName(getText("ContextMenu_GeneratorTake"))
+                    local option = contextMenu:getOptionFromName(getText("ContextMenu_GeneratorTake"))
                     ISGenTweaksContextMenu.takeGeneratorTooltip(option, genID)
                 end
             end

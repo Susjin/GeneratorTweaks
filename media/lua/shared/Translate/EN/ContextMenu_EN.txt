@@ -1,0 +1,8 @@
+ContextMenu_EN = {
+
+    ContextMenu_GenTweaks_BranchMenu = "Branch Settings",
+    ContextMenu_GenTweaks_Split = "Split Power Between Generators",
+    ContextMenu_GenTweaks_Focus = "Focus Power On This Generator",
+    ContextMenu_GenTweaks_Disable = "Disable Power Distribution",
+
+}

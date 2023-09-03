@@ -15,7 +15,7 @@ local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
 
 ---Updates all generators on the Global ModData per in-game minute
 function ISGenTweaksUpdate.updateEveryMinute()
-    --Gets all values from Global ModData
+    --Gets all tables from Global ModData
     local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
     if not totalGenerators then return end
     local branches = ModData.getOrCreate("GenTweaksBranches")

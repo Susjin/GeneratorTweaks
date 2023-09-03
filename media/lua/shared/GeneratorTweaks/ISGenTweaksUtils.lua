@@ -155,8 +155,8 @@ function ISGenTweaksUtils.getBranchTotalPowerFromID(branches)
 	local branchPower = {}
 	branchPower.total = 0
 	branchPower.count = 0
-	for j = 1, #branches[branchID] do
-		local generator = ISGenTweaksUtils.getGeneratorFromPos(totalGenerators[branches[branchID][j]])
+	for j = 1, #branches do
+		local generator = ISGenTweaksUtils.getGeneratorFromPos(totalGenerators[branches[j]])
 		if instanceof(generator, "IsoGenerator") and generator:isActivated() then
 			branchPower.total = branchPower.total + generator:getTotalPowerUsing()
 			branchPower.count = branchPower.count + 1
