@@ -2,8 +2,8 @@ IGUI_EN = {
 
     IGUI_GenTweaks_NotInModData = "This Generator is not being handled by Generator Tweaks. <LINE> Please restart this Generator.",
     IGUI_GenTweaks_NoPowerSetting = "Disabled",
-    IGUI_GenTweaks_PowerSplit = "split power consumption",
-    IGUI_GenTweaks_PowerFocus = "focus power consumption",
+    IGUI_GenTweaks_PowerSplit = "Split power consumption",
+    IGUI_GenTweaks_PowerFocus = "Focus power consumption",
     IGUI_GenTweaks_PowerFocusGen = "Focus generator: ID %1",
     IGUI_GenTweaks_NeedsCorrection = "(waiting update)",
     IGUI_GenTweaks_BranchInfo = "Branch ID %1:",

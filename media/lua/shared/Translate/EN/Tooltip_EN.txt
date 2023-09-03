@@ -1,0 +1,6 @@
+Tooltip_EN = {
+
+    Tooltip_GenTweaks_Warning = "WARNING!",
+    Tooltip_GenTweaks_WarningMessage = "This is the Master Branch Generator! <LINE> If you pick up this generator, all of it's Branch configuration will get reset! <LINE> Proceed with caution!",
+
+}

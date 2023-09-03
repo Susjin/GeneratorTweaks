@@ -12,14 +12,21 @@ local ISGenTweaksUtils = {}
 local pairs = pairs
 local print = print
 
------------------- Miscellaneous Functions ------------------
-
+-- ---------------- Miscellaneous Functions ---------------- --
 ---Prints a message in the log only if in debug mode
 ---@param message string Message to be printed
 function ISGenTweaksUtils.debugMessage(message)
 	if getDebug() then
 		print(message)
 	end
+end
+
+function ISGenTweaksUtils.getColorsFromAcessibility()
+	local colors = {}
+	colors.white = " <RGB:1,1,1> "
+	colors.good = " <RGB:" .. getCore():getGoodHighlitedColor():getR() .. "," .. getCore():getGoodHighlitedColor():getG() .. "," .. getCore():getGoodHighlitedColor():getB() .. "> "
+	colors.bad  = " <RGB:" .. getCore():getBadHighlitedColor():getR() .. "," .. getCore():getBadHighlitedColor():getG() .. "," .. getCore():getBadHighlitedColor():getB() .. "> "
+	return colors
 end
 
 ---Returns the given number rounded with the number of decimal places in param2 (0 by default)
@@ -52,8 +59,7 @@ function ISGenTweaksUtils.printConnections(branches)
 	end
 end
 
------------------- Functions related to general Generator interactions ------------------
-
+-- ---------------- Functions related to general Generator interactions ---------------- --
 function ISGenTweaksUtils.getShareSetting(shareValue)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
 	if not totalGenerators then return end

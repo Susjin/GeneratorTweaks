@@ -15,6 +15,22 @@ local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 --local pairs = pairs
 
 
+-- ---------------- Functions related to Tooltips on the ContextMenu ---------------- --
+function ISGenTweaksContextMenu.takeGeneratorTooltip(takeOption, genID)
+    local colors = ISGenTweaksUtils.getColorsFromAcessibility()
+    takeOption.toolTip = ISToolTip:new()
+    takeOption.toolTip:initialise()
+    takeOption.toolTip:setVisible(true)
+    takeOption.toolTip.maxLineWidth = 300
+    takeOption.toolTip:setName(getText("ContextMenu_GeneratorTake") .. " - ID: " .. tostring(genID))
+
+    takeOption.toolTip.description = " <CENTRE><H1><SIZE:large> " .. colors.bad .. getText("Tooltip_GenTweaks_Warning") .. " <LINE><LINE> "
+    takeOption.toolTip.description = takeOption.toolTip.description .. " <TEXT><CENTRE><SIZE:small> " .. colors.white .. getText("Tooltip_GenTweaks_WarningMessage")
+end
+
+
+
+
 -- ---------------- Functions related to actions on the ContextMenu ---------------- --
 ---Sets the current generator to be the focus of power consumption of the whole branch it is in
 ---@param generator IsoGenerator Generator being interacted with
@@ -55,6 +71,7 @@ end
 ---@param worldObjects table<number, IsoObject> Table containing objects on the clicked position
 function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
     local player = getSpecificPlayer(_player)
+    ---@type IsoGenerator
     local generator
     for i=1, #worldObjects do
         if instanceof(worldObjects[i], "IsoGenerator") then
@@ -63,15 +80,23 @@ function ISGenTweaksContextMenu.onContextMenu(_player, context, worldObjects)
     end
 
     if generator then
-        context:addOption("Check Branches", player, ISGenTweaksPowerShare.checkAllConnections)
+        local branches = ModData.getOrCreate("GenTweaksBranches")
+
         context:addOption("Split", generator, ISGenTweaksContextMenu.setSplitPower)
         context:addOption("Focus", generator, ISGenTweaksContextMenu.setFocusPower)
 
         local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
         if genID > 0 then
-            local option = context:getOptionFromName(getText("ContextMenu_GeneratorInfo"))
             if player:DistToSquared(generator:getX() + 0.5, generator:getY() + 0.5) < 2 * 2 then
+                local option = context:getOptionFromName(getText("ContextMenu_GeneratorInfo"))
                 option.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
+            end
+            if branches and not generator:isConnected() then
+                local branchID = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
+                if genID == branchID then
+                    local option = context:getOptionFromName(getText("ContextMenu_GeneratorTake"))
+                    ISGenTweaksContextMenu.takeGeneratorTooltip(option, genID)
+                end
             end
         end
     end

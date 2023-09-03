@@ -1,0 +1,6 @@
+Tooltip_PTBR = {
+
+    Tooltip_GenTweaks_Warning = "CUIDADO!",
+    Tooltip_GenTweaks_WarningMessage = "Este é o Gerador Mestre da Árvore! <LINE> Se você pegar este gerador, todas as configurações da sua Árvore serão reiniciadas! <LINE> Prossiga com cautela!",
+
+}
