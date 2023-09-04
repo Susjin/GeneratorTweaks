@@ -3,17 +3,15 @@
 ---	Generator Tweaks
 ---	@author: peteR_pg
 ---	Steam profile: https://steamcommunity.com/id/peter_pg/
+--- GitHub Repository: https://github.com/Susjin/GeneratorTweaks
 
 --- Main file with all functions
 --- @class ISGenTweaksContextMenu
 local ISGenTweaksContextMenu = {}
 ----------------------------------------------------------------------------------------------
 --Setting up locals
---local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
---local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
---local pairs = pairs
-
+local isSP = (isClient() == false) and (isServer() == false)
 
 -- ---------------- Functions related to Tooltips on the ContextMenu ---------------- --
 ---Creates a tooltip for the option 'Take Generator'
@@ -33,41 +31,19 @@ end
 
 
 -- ---------------- Functions related to actions on the ContextMenu ---------------- --
----Sets the current generator to be the focus of power consumption of the whole branch it is in
+---Sets a given share setting to the current generator branch
 ---@param generator IsoGenerator Generator being interacted with
 ---@param branches KahluaTable ModData table containing all generators 'branches' in the world
-function ISGenTweaksContextMenu.setFocusPower(generator, branches)
-    local genID = ISGenTweaksUtils.getIDFromGenerator(generator) --Gets the ID, if non-existent, create one
-    local branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID) --Gets the branch, if non-existent, put in one
-
-    if (genID ~= -1) and (branchIndex ~= -1) then
-        branches[branchIndex].share = genID
+---@param setting number Branch setting 'share' value to be set in the branch
+function ISGenTweaksContextMenu.onClickBranchSettings(generator, branches, setting)
+    if isSP then
+        ISGenTweaksUtils.setBranchSetting(generator, branches, setting)
+    else
+        local genSquare = generator:getSquare()
+        sendClientCommand("GenTweaks", "branchSetting", {x = genSquare:getX(), y = genSquare:getY(), z = genSquare:getZ()})
     end
 end
 
----Sets the current branch the generator is in to split all it's power consumption between generators
----@param generator IsoGenerator Generator being interacted with
----@param branches KahluaTable ModData table containing all generators 'branches' in the world
-function ISGenTweaksContextMenu.setSplitPower(generator, branches)
-    local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
-    local branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
-
-    if branchIndex ~= -1 then
-        branches[branchIndex].share = 0
-    end
-end
-
----Sets the current branch the generator is in to disable it's split power setting
----@param generator IsoGenerator Generator being interacted with
----@param branches KahluaTable ModData table containing all generators 'branches' in the world
-function ISGenTweaksContextMenu.setDisablePower(generator, branches)
-    local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
-    local branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
-
-    if branchIndex ~= -1 then
-        branches[branchIndex].share = -1
-    end
-end
 
 -- ---------------- Functions related to ContextMenu ---------------- --
 ---Creates the ContextMenu option when clicking a generator
@@ -96,9 +72,9 @@ function ISGenTweaksContextMenu.onContextMenu(_player, contextMenu, worldObjects
                 local generatorSubMenu = ISContextMenu:getNew(contextMenu)
                 contextMenu:addSubMenu(generatorMenu, generatorSubMenu)
                 --Adding options
-                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Split"), generator, ISGenTweaksContextMenu.setSplitPower, branches)
-                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Focus"), generator, ISGenTweaksContextMenu.setFocusPower, branches)
-                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Disable"), generator, ISGenTweaksContextMenu.setDisablePower, branches)
+                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Disable"), generator, ISGenTweaksUtils.setBranchSetting, branches, -1)
+                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Split"), generator, ISGenTweaksUtils.setBranchSetting, branches, 0)
+                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Focus"), generator, ISGenTweaksUtils.setBranchSetting, branches, genID)
             end
             --Override tooltip of 'Generator info' option
             if player:DistToSquared(generator:getX() + 0.5, generator:getY() + 0.5) < 2 * 2 then

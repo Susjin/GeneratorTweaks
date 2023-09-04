@@ -3,6 +3,7 @@
 ---	Generator Tweaks
 ---	@author: peteR_pg
 ---	Steam profile: https://steamcommunity.com/id/peter_pg/
+--- GitHub Repository: https://github.com/Susjin/GeneratorTweaks
 
 --- Main file with all functions
 --- @class ISGenTweaksUtils
@@ -44,9 +45,7 @@ end
 ---Prints the coordinates of a IsoGridSquare
 ---@param table table Contains a x, y and z index for the position of a IsoGridSquare
 function ISGenTweaksUtils.printPosFromData(table)
-	--for _, data in pairs(table) do
 	ISGenTweaksUtils.debugMessage(string.format("X: %d, Y: %d, Z: %d", table.x, table.y, table.z))
-	--end
 end
 
 ---Prints all the generator connection branches
@@ -91,6 +90,8 @@ function ISGenTweaksUtils.getGeneratorFromPos(genXYZ)
 			local generator = square:getGenerator()
 			if generator then
 				return generator
+			else
+				return "notFound"
 			end
 		end
 	end
@@ -207,6 +208,20 @@ function ISGenTweaksUtils.saveGeneratorToModData(generator)
 			end
 		until (sameID == false)
 		totalGenerators[genID] = generatorData
+	end
+end
+
+-- ---------------- Functions related to actions on the ContextMenu ---------------- --
+---Sets a given share setting to the current generator branch
+---@param generator IsoGenerator Generator being interacted with
+---@param branches KahluaTable ModData table containing all generators 'branches' in the world
+---@param setting number Branch setting 'share' value to be set in the branch
+function ISGenTweaksUtils.setBranchSetting(generator, branches, setting)
+	local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
+	local branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
+
+	if (branchIndex ~= -1) and (genID ~= -1) then
+		branches[branchIndex].share = setting
 	end
 end
 

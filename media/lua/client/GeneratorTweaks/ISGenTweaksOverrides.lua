@@ -3,6 +3,7 @@
 ---	Generator Tweaks
 ---	@author: peteR_pg
 ---	Steam profile: https://steamcommunity.com/id/peter_pg/
+--- GitHub Repository: https://github.com/Susjin/GeneratorTweaks
 
 --- Main file with all functions
 --- @class ISGenTweaksOverride
@@ -12,7 +13,7 @@ local ISGenTweaksOverride = {}
 local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
---local pairs = pairs
+local isSP = (isClient() == false) and (isServer() == false)
 
 -- ---------------- Compatibility with 'Generator Time Remaining' ---------------- --
 local hasTimeRemaining = getActivatedMods():contains("GeneratorTimeRemaining")
@@ -28,9 +29,15 @@ local oldActivatePerform = ISActivateGenerator.perform
 function ISActivateGenerator:perform()
     oldActivatePerform(self)
     if self.activate == true then
-        ISGenTweaksPowerSet.correctGenerator(self.generator)
-        ISGenTweaksUtils.saveGeneratorToModData(self.generator)
-        ISGenTweaksPowerShare.createAllBranches()
+        if isSP then
+            ISGenTweaksPowerSet.correctGenerator(self.generator)
+            ISGenTweaksUtils.saveGeneratorToModData(self.generator)
+            ISGenTweaksPowerShare.createAllBranches()
+        else
+            ---@type IsoGridSquare
+            local genSquare = self.generator:getSquare()
+            sendClientCommand("GenTweaks", "startGenerator", {x = genSquare:getX(), y = genSquare:getY(), z = genSquare:getZ()})
+        end
     end
 end
 
@@ -49,9 +56,9 @@ function ISGeneratorInfoWindow.getRichText(object, displayStats)
     local square = object:getSquare()
     local colors = ISGenTweaksUtils.getColorsFromAcessibility()
     if not displayStats then
-        local text = " <INDENT:10> "
+        local text = ""
         if square and not square:isOutside() and square:getBuilding() then
-            text = text .. colors.bad .. getText("IGUI_Generator_IsToxic")
+            text = text .. " <INDENT:10> " .. colors.bad .. getText("IGUI_Generator_IsToxic")
         end
         return text
     end
@@ -100,10 +107,10 @@ function ISGenTweaksOverride.setTextForDescription(generator, text)
 
             if shareSetting == 0 then
                 if (currentPower ~= correctedPower) and isActivated then
-                    text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection") .. " <LINE> "
+                    text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
                 end
                 --BranchInfo
-                text = text .. " <LINE> <INDENT:0> "
+                text = text .. " <LINE><LINE> <INDENT:0> "
                 text = text .. getText("IGUI_GenTweaks_BranchInfo", branchID)
                 text = text .. " <LINE> <INDENT:10> "
                 text = text .. getText("IGUI_GenTweaks_BranchTotalGen", branchTotal.count) .. " <LINE> "
@@ -111,10 +118,10 @@ function ISGenTweaksOverride.setTextForDescription(generator, text)
                 text = text .. getText("IGUI_GenTweaks_BranchMode") .. branchMode
             elseif shareSetting == 1 then
                 if (currentPower ~= ISGenTweaksUtils.roundNumber(branchEach, 2)) and isActivated then
-                    text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection") .. " <LINE> "
+                    text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
                 end
                 --BranchInfo
-                text = text .. " <LINE> <INDENT:0> "
+                text = text .. " <LINE><LINE> <INDENT:0> "
                 text = text .. getText("IGUI_GenTweaks_BranchInfo", branchID)
                 text = text .. " <LINE> <INDENT:10> "
                 text = text .. getText("IGUI_GenTweaks_BranchTotalGen", branchTotal.count) .. " <LINE> "
@@ -124,10 +131,10 @@ function ISGenTweaksOverride.setTextForDescription(generator, text)
             elseif shareSetting == 2 then
                 local isFocusPower = genID == branches[branchID].share and ISGenTweaksUtils.roundNumber(branchTotal.total, 2) or 0
                 if (currentPower ~= isFocusPower) and isActivated then
-                    text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection") .. " <LINE> "
+                    text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
                 end
                 --BranchInfo
-                text = text .. " <LINE> <INDENT:0> "
+                text = text .. " <LINE><LINE> <INDENT:0> "
                 text = text .. getText("IGUI_GenTweaks_BranchInfo", branchID)
                 text = text .. " <LINE> <INDENT:10> "
                 text = text .. getText("IGUI_GenTweaks_BranchTotalGen", branchTotal.count) .. " <LINE> "

@@ -3,6 +3,7 @@
 ---	Generator Tweaks
 ---	@author: peteR_pg
 ---	Steam profile: https://steamcommunity.com/id/peter_pg/
+--- GitHub Repository: https://github.com/Susjin/GeneratorTweaks
 
 --- Main file with all functions
 --- @class ISGenTweaksPowerSet
@@ -10,7 +11,6 @@
 local ISGenTweaksPowerSet = {}
 ----------------------------------------------------------------------------------------------
 --Setting locals
---local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 local pairs = pairs
@@ -62,11 +62,11 @@ function ISGenTweaksPowerSet.correctAllGenerators(totalGenerators)
     for i, data in pairs(totalGenerators) do
         if data then
             local generator = ISGenTweaksUtils.getGeneratorFromPos(data)
-            if not instanceof(generator, "IsoGenerator") then
+            if generator == "notFound" then
                 totalGenerators[i] = nil
                 ISGenTweaksPowerShare.createAllBranches()
             else
-                if generator:isActivated() then
+                if instanceof(generator, "IsoGenerator") and generator:isActivated() then
                     ISGenTweaksPowerSet.correctGenerator(generator)
                 end
             end

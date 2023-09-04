@@ -3,6 +3,7 @@
 ---	Generator Tweaks
 ---	@author: peteR_pg
 ---	Steam profile: https://steamcommunity.com/id/peter_pg/
+--- GitHub Repository: https://github.com/Susjin/GeneratorTweaks
 
 --- Main file with all functions
 --- @class ISGenTweaksUpdate
@@ -11,7 +12,6 @@ local ISGenTweaksUpdate = {}
 --Setting up locals
 local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
---local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 
 ---Updates all generators on the Global ModData per in-game minute
 function ISGenTweaksUpdate.updateEveryMinute()
