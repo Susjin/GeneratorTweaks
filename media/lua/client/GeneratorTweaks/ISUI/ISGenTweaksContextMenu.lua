@@ -25,7 +25,7 @@ function ISGenTweaksContextMenu.takeGeneratorTooltip(takeOption, genID)
     takeOption.toolTip.maxLineWidth = 300
     takeOption.toolTip:setName(getText("ContextMenu_GeneratorTake") .. " - ID: " .. tostring(genID))
 
-    takeOption.toolTip.description = " <CENTRE><H1><SIZE:large> " .. colors.bad .. getText("Tooltip_GenTweaks_Warning") .. " <LINE><LINE> "
+    takeOption.toolTip.description = " <CENTRE><H1><SIZE:large> " .. colors.bad .. getText("Tooltip_GenTweaks_Warning") .. " <LINE> "
     takeOption.toolTip.description = takeOption.toolTip.description .. " <TEXT><CENTRE><SIZE:small> " .. colors.white .. getText("Tooltip_GenTweaks_WarningMessage")
 end
 
@@ -80,9 +80,10 @@ function ISGenTweaksContextMenu.onContextMenu(_player, contextMenu, worldObjects
             if player:DistToSquared(generator:getX() + 0.5, generator:getY() + 0.5) < 2 * 2 then
                 local option = contextMenu:getOptionFromName(getText("ContextMenu_GeneratorInfo"))
                 option.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
+                option.toolTip.maxLineWidth = 400
             end
             --Override tooltip of the 'Take generator' option
-            if branches and not generator:isConnected() then
+            if ISGenTweaksUtils.checkModData(branches) and not generator:isConnected() then
                 local branchID = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
                 if genID == branchID then
                     local option = contextMenu:getOptionFromName(getText("ContextMenu_GeneratorTake"))

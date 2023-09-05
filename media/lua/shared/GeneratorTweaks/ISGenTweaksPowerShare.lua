@@ -35,7 +35,7 @@ end
 ---@return table Contains all generators in the ModData with their respective adjacency
 function ISGenTweaksPowerShare.getAllAdjacentGenerators()
     local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-    if #totalGenerators == 0 then return end
+    if not ISGenTweaksUtils.checkModData(totalGenerators) then return end
     local adjacentGenerators = { }
 
     for i, data in pairs(totalGenerators) do

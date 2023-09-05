@@ -22,6 +22,18 @@ function ISGenTweaksUtils.debugMessage(message)
 	end
 end
 
+---Checks if a ModData table has any value in it
+---@param ModDataTable table Table to check if it's nil
+function ISGenTweaksUtils.checkModData(ModDataTable)
+	local count = 0
+	if ModDataTable then
+		for _, _ in pairs(ModDataTable) do
+			count = count + 1
+		end
+	end
+	return count > 0
+end
+
 ---Get all the Good/Bad colors from acessibility settings
 ---@return table Containing the colors white, good and bad
 function ISGenTweaksUtils.getColorsFromAcessibility()
@@ -66,7 +78,7 @@ end
 ---@return number Setting to be tested when applying power split
 function ISGenTweaksUtils.getShareSetting(shareValue)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-	if #totalGenerators == 0 then return end
+	if not ISGenTweaksUtils.checkModData(totalGenerators) then return end
 
 	if shareValue == 0 then return 1 end
 	if shareValue > 0 then
@@ -103,7 +115,7 @@ end
 ---@return number Generator ID in ModData table (-1 if non-existent)
 function ISGenTweaksUtils.getIDFromGenerator(generator)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-	if #totalGenerators == 0 then return end
+	if not ISGenTweaksUtils.checkModData(totalGenerators) then return end
 	if instanceof(generator, "IsoGenerator") then
 		local square = generator:getSquare()
 		local squarePos = {x = square:getX(), y = square:getY(), z = square:getZ()}
@@ -151,7 +163,7 @@ end
 ---@return table Contains the index 'total' and 'count' with the total power and amount of generators counted
 function ISGenTweaksUtils.getBranchTotalPowerFromID(branches)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-	if #totalGenerators == 0 then return end
+	if not ISGenTweaksUtils.checkModData(totalGenerators) then return end
 
 	local branchPower = {}
 	branchPower.total = 0

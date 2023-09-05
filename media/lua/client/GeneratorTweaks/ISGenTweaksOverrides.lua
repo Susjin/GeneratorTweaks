@@ -51,7 +51,7 @@ function ISGeneratorInfoWindow:setObject(object)
 end
 
 ---Overwrite default vanilla behaviour to set the description of the Generator InfoWindow (Compatible with 'Generator Time Remaining')
-local oldGetRichText = ISGeneratorInfoWindow.getRichText
+local _ = ISGeneratorInfoWindow.getRichText
 function ISGeneratorInfoWindow.getRichText(object, displayStats)
     local square = object:getSquare()
     local colors = ISGenTweaksUtils.getColorsFromAcessibility()
@@ -93,7 +93,7 @@ end
 function ISGenTweaksOverride.setTextForDescription(generator, text)
     local colors = ISGenTweaksUtils.getColorsFromAcessibility()
     local branches = ModData.getOrCreate("GenTweaksBranches")
-    if branches then
+    if ISGenTweaksUtils.checkModData(branches) then
         local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
         if genID > -1 then
             local branchID = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
