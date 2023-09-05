@@ -66,7 +66,7 @@ end
 ---@return number Setting to be tested when applying power split
 function ISGenTweaksUtils.getShareSetting(shareValue)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-	if not totalGenerators then return end
+	if #totalGenerators == 0 then return end
 
 	if shareValue == 0 then return 1 end
 	if shareValue > 0 then
@@ -103,7 +103,7 @@ end
 ---@return number Generator ID in ModData table (-1 if non-existent)
 function ISGenTweaksUtils.getIDFromGenerator(generator)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-	if not totalGenerators then return end
+	if #totalGenerators == 0 then return end
 	if instanceof(generator, "IsoGenerator") then
 		local square = generator:getSquare()
 		local squarePos = {x = square:getX(), y = square:getY(), z = square:getZ()}
@@ -151,7 +151,7 @@ end
 ---@return table Contains the index 'total' and 'count' with the total power and amount of generators counted
 function ISGenTweaksUtils.getBranchTotalPowerFromID(branches)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-	if not totalGenerators then return end
+	if #totalGenerators == 0 then return end
 
 	local branchPower = {}
 	branchPower.total = 0

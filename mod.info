@@ -1,7 +1,12 @@
 name=Generator Tweaks
 id=GeneratorTweaks
 description=Project Zomboid's Example Mod
+authors=peteR
+url=https://github.com/Susjin/GeneratorTweaks
 
+modversion=1.0.0
+versionMin=41.78
+tags=Build 41,Misc,Balance
 
+icon=icon.png
 poster=poster.png
-url=http://theindiestone.com/forums/index.php/topic/2011-how-to-use-the-upcoming-modloader/

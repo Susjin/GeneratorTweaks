@@ -15,6 +15,7 @@ local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 local ISGenTweaksPowerSet = require "GeneratorTweaks/ISGenTweaksPowerSet"
 local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 
+--Handler of Client Commands
 GenTweaksClientCommands.onClientCommand = function(module, command, player, args)
     if isServer() then
         if module == "GenTweaks" then
@@ -25,9 +26,11 @@ GenTweaksClientCommands.onClientCommand = function(module, command, player, args
                     ISGenTweaksPowerSet.correctGenerator(generator)
                     ISGenTweaksUtils.saveGeneratorToModData(generator)
                     ISGenTweaksPowerShare.createAllBranches()
+                    ModData.transmit("GenTweaksGenerators")
+                    ModData.transmit("GenTweaksBranches")
                 end
             elseif command == "branchSetting" then
-                local generator = ISGenTweaksUtils.getGeneratorFromPos({args.x, args.y, args.z})
+                local generator = ISGenTweaksUtils.getGeneratorFromPos(args)
                 if generator then
                     ISGenTweaksUtils.setBranchSetting(generator, branches, args.share)
                 end
@@ -40,6 +43,8 @@ end
 
 --Add functions to events
 Events.OnClientCommand.Add(GenTweaksClientCommands.onClientCommand)
+--Handler for connecting players
+Events.SendCustomModData.Add(function() ModData.transmit("GenTweaksGenerators"); ModData.transmit("GenTweaksBranches"); print("GENTWEAKS: Sent ModData!"); end)
 
 ------------------ Returning file for 'require' ------------------
 return GenTweaksClientCommands

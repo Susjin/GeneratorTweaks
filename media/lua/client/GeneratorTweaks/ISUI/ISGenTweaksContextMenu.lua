@@ -40,7 +40,7 @@ function ISGenTweaksContextMenu.onClickBranchSettings(generator, branches, setti
         ISGenTweaksUtils.setBranchSetting(generator, branches, setting)
     else
         local genSquare = generator:getSquare()
-        sendClientCommand("GenTweaks", "branchSetting", {x = genSquare:getX(), y = genSquare:getY(), z = genSquare:getZ()})
+        sendClientCommand("GenTweaks", "branchSetting", {x = genSquare:getX(), y = genSquare:getY(), z = genSquare:getZ(), share = setting})
     end
 end
 
@@ -72,9 +72,9 @@ function ISGenTweaksContextMenu.onContextMenu(_player, contextMenu, worldObjects
                 local generatorSubMenu = ISContextMenu:getNew(contextMenu)
                 contextMenu:addSubMenu(generatorMenu, generatorSubMenu)
                 --Adding options
-                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Disable"), generator, ISGenTweaksUtils.setBranchSetting, branches, -1)
-                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Split"), generator, ISGenTweaksUtils.setBranchSetting, branches, 0)
-                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Focus"), generator, ISGenTweaksUtils.setBranchSetting, branches, genID)
+                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Disable"), generator, ISGenTweaksContextMenu.onClickBranchSettings, branches, -1)
+                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Split"), generator, ISGenTweaksContextMenu.onClickBranchSettings, branches, 0)
+                generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Focus"), generator, ISGenTweaksContextMenu.onClickBranchSettings, branches, genID)
             end
             --Override tooltip of 'Generator info' option
             if player:DistToSquared(generator:getX() + 0.5, generator:getY() + 0.5) < 2 * 2 then

@@ -35,7 +35,7 @@ end
 ---@return table Contains all generators in the ModData with their respective adjacency
 function ISGenTweaksPowerShare.getAllAdjacentGenerators()
     local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-    if not totalGenerators then return end
+    if #totalGenerators == 0 then return end
     local adjacentGenerators = { }
 
     for i, data in pairs(totalGenerators) do
@@ -101,9 +101,6 @@ end
 ---@param totalGenerators KahluaTable ModData table containing all the generators in the world
 ---@param branches KahluaTable ModData table containing all generators 'branches' in the world
 function ISGenTweaksPowerShare.splitPowerBranch(totalGenerators, branches)
-    if not totalGenerators then return end
-    if not branches then return end
-
     local branchPower = {}
     --First we get the sum of all generators and make a average
     for i, data in pairs(branches) do
