@@ -1,0 +1,8 @@
+ContextMenu_PTBR = {
+
+    ContextMenu_GenTweaks_BranchMenu = "Configurações da Árvore",
+    ContextMenu_GenTweaks_Split = "Dividir Consumo entre Geradores",
+    ContextMenu_GenTweaks_Focus = "Concentrar Consumo neste Gerador",
+    ContextMenu_GenTweaks_Disable = "Desativar Distribuição de Energia",
+
+}
