@@ -43,8 +43,6 @@ end
 
 --Add functions to events
 Events.OnClientCommand.Add(GenTweaksClientCommands.onClientCommand)
---Handler for connecting players
-Events.SendCustomModData.Add(function() ModData.transmit("GenTweaksGenerators"); ModData.transmit("GenTweaksBranches"); print("GENTWEAKS: Sent ModData!"); end)
 
 ------------------ Returning file for 'require' ------------------
 return GenTweaksClientCommands

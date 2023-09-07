@@ -60,6 +60,8 @@ function ISGenTweaksContextMenu.onContextMenu(_player, contextMenu, worldObjects
         end
     end
 
+    if getDebug() then contextMenu:addOption("test range", worldObjects[1]:getSquare(), function(square, playerSquare) print(square:DistToProper(playerSquare))  end, player:getSquare()) end
+
     if generator then
         local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
         if genID > 0 then

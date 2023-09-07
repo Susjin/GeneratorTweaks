@@ -20,7 +20,8 @@ local pairs = pairs
 GenTweaksServerCommands.onCreatePlayer = function(playerIndex, player)
     if isClient() then
         ModData.request("GenTweaksGenerators")
-        print(string.format("GENTWEAKS: Sending ModData to player with index: %d | username: %s", playerIndex, player:getUsername()))
+        ModData.request("GenTweaksBranches")
+        print(string.format("GENTWEAKS: Requesting ModData to player with index: %d | username: %s", playerIndex, player:getUsername()))
     end
 end
 
