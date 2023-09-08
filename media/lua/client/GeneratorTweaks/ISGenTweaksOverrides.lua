@@ -93,58 +93,59 @@ end
 function ISGenTweaksOverride.setTextForDescription(generator, text)
     local colors = ISGenTweaksUtils.getColorsFromAcessibility()
     local branches = ModData.getOrCreate("GenTweaksBranches")
-    if ISGenTweaksUtils.checkModData(branches) then
-        local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
-        if genID > -1 then
-            local branchID = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
-            local branchMode = ISGenTweaksUtils.getBranchModeFromID(branches[branchID])
-            local branchTotal = ISGenTweaksUtils.getBranchTotalPowerFromID(branches[branchID])
-            local branchEach = ISGenTweaksUtils.getBranchEachPowerFromTotal(branches[branchID].share, branchTotal)
-            local shareSetting = ISGenTweaksUtils.getShareSetting(branches[branchID].share)
-            local correctedPower = ISGenTweaksUtils.roundNumber(ISGenTweaksPowerSet.calculateTotalPower(generator), 2)
-            local currentPower = ISGenTweaksUtils.roundNumber(generator:getTotalPowerUsing(), 2)
-            local isActivated = generator:isActivated()
+    local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
+    if genID > -1 and ISGenTweaksUtils.checkModData(branches) then
+        local branchID = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
+        local branchMode = ISGenTweaksUtils.getBranchModeFromID(branches[branchID])
+        local branchTotal = ISGenTweaksUtils.getBranchTotalPowerFromID(branches[branchID])
+        local branchEach = ISGenTweaksUtils.getBranchEachPowerFromTotal(branches[branchID].share, branchTotal)
+        local shareSetting = ISGenTweaksUtils.getShareSetting(branches[branchID].share)
+        local correctedPower = ISGenTweaksUtils.roundNumber(ISGenTweaksPowerSet.calculateTotalPower(generator), 2)
+        local currentPower = ISGenTweaksUtils.roundNumber(generator:getTotalPowerUsing(), 2)
+        local isActivated = generator:isActivated()
 
-            if shareSetting == 0 then
-                if (currentPower ~= correctedPower) and isActivated then
-                    text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
-                end
-                --BranchInfo
-                text = text .. " <LINE><LINE> <INDENT:0> "
-                text = text .. getText("IGUI_GenTweaks_BranchInfo", branchID)
-                text = text .. " <LINE> <INDENT:10> "
-                text = text .. getText("IGUI_GenTweaks_BranchTotalGen", branchTotal.count) .. " <LINE> "
-                text = text .. getText("IGUI_GenTweaks_BranchTotalPower", ISGenTweaksUtils.roundNumber(branchTotal.total, 2)) .. " L/h <LINE> "
-                text = text .. getText("IGUI_GenTweaks_BranchMode") .. branchMode
-            elseif shareSetting == 1 then
-                if (currentPower ~= ISGenTweaksUtils.roundNumber(branchEach, 2)) and isActivated then
-                    text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
-                end
-                --BranchInfo
-                text = text .. " <LINE><LINE> <INDENT:0> "
-                text = text .. getText("IGUI_GenTweaks_BranchInfo", branchID)
-                text = text .. " <LINE> <INDENT:10> "
-                text = text .. getText("IGUI_GenTweaks_BranchTotalGen", branchTotal.count) .. " <LINE> "
-                text = text .. getText("IGUI_GenTweaks_BranchTotalPower", ISGenTweaksUtils.roundNumber(branchTotal.total, 2)) .. " L/h <LINE> "
-                text = text .. getText("IGUI_GenTweaks_BranchMode") .. branchMode
-
-            elseif shareSetting == 2 then
-                local isFocusPower = genID == branches[branchID].share and ISGenTweaksUtils.roundNumber(branchTotal.total, 2) or 0
-                if (currentPower ~= isFocusPower) and isActivated then
-                    text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
-                end
-                --BranchInfo
-                text = text .. " <LINE><LINE> <INDENT:0> "
-                text = text .. getText("IGUI_GenTweaks_BranchInfo", branchID)
-                text = text .. " <LINE> <INDENT:10> "
-                text = text .. getText("IGUI_GenTweaks_BranchTotalGen", branchTotal.count) .. " <LINE> "
-                text = text .. getText("IGUI_GenTweaks_BranchTotalPower", ISGenTweaksUtils.roundNumber(branchTotal.total, 2)) .. " L/h <LINE> "
-                text = text .. getText("IGUI_GenTweaks_BranchMode") .. branchMode
-                text = text .. " <LINE> " .. getText("IGUI_GenTweaks_PowerFocusGen", branches[branchID].share)
+        if (shareSetting == 0) and isActivated then
+            if currentPower ~= correctedPower then
+                text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
             end
-        else
-            text = text .. " <LINE><LINE><INDENT:0> " .. colors.bad .. getText("IGUI_GenTweaks_NotInModData")
+            --BranchInfo
+            text = text .. " <LINE><LINE> <INDENT:0> "
+            text = text .. getText("IGUI_GenTweaks_BranchInfo", branchID)
+            text = text .. " <LINE> <INDENT:10> "
+            text = text .. getText("IGUI_GenTweaks_BranchTotalGen", branchTotal.count) .. " <LINE> "
+            text = text .. getText("IGUI_GenTweaks_ThisTotalGen", correctedPower) .. " L/h <LINE> "
+            text = text .. getText("IGUI_GenTweaks_BranchTotalPower", ISGenTweaksUtils.roundNumber(branchTotal.total, 2)) .. " L/h <LINE> "
+            text = text .. getText("IGUI_GenTweaks_BranchMode") .. branchMode
+        elseif (shareSetting == 1) and isActivated then
+            if currentPower ~= ISGenTweaksUtils.roundNumber(branchEach, 2) then
+                text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
+            end
+            --BranchInfo
+            text = text .. " <LINE><LINE> <INDENT:0> "
+            text = text .. getText("IGUI_GenTweaks_BranchInfo", branchID)
+            text = text .. " <LINE> <INDENT:10> "
+            text = text .. getText("IGUI_GenTweaks_BranchTotalGen", branchTotal.count) .. " <LINE> "
+            text = text .. getText("IGUI_GenTweaks_ThisTotalGen", correctedPower) .. " L/h <LINE> "
+            text = text .. getText("IGUI_GenTweaks_BranchTotalPower", ISGenTweaksUtils.roundNumber(branchTotal.total, 2)) .. " L/h <LINE> "
+            text = text .. getText("IGUI_GenTweaks_BranchMode") .. branchMode
+
+        elseif (shareSetting == 2) and isActivated then
+            local isFocusPower = genID == branches[branchID].share and ISGenTweaksUtils.roundNumber(branchTotal.total, 2) or 0
+            if currentPower ~= isFocusPower then
+                text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
+            end
+            --BranchInfo
+            text = text .. " <LINE><LINE> <INDENT:0> "
+            text = text .. getText("IGUI_GenTweaks_BranchInfo", branchID)
+            text = text .. " <LINE> <INDENT:10> "
+            text = text .. getText("IGUI_GenTweaks_BranchTotalGen", branchTotal.count) .. " <LINE> "
+            text = text .. getText("IGUI_GenTweaks_ThisTotalGen", correctedPower) .. " L/h <LINE> "
+            text = text .. getText("IGUI_GenTweaks_BranchTotalPower", ISGenTweaksUtils.roundNumber(branchTotal.total, 2)) .. " L/h <LINE> "
+            text = text .. getText("IGUI_GenTweaks_BranchMode") .. branchMode
+            text = text .. " <LINE> " .. getText("IGUI_GenTweaks_PowerFocusGen", branches[branchID].share)
         end
+    else
+        text = text .. " <LINE><LINE><INDENT:0> " .. colors.bad .. getText("IGUI_GenTweaks_NotInModData")
     end
     return text
 end

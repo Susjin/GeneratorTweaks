@@ -8,7 +8,8 @@ IGUI_PTBR = {
     IGUI_GenTweaks_NeedsCorrection = "(aguardando atualização)",
     IGUI_GenTweaks_BranchInfo = "Árvore ID %1:",
     IGUI_GenTweaks_BranchTotalGen = "Total de geradores: %1",
-    IGUI_GenTweaks_BranchTotalPower = "Total de energia: %1",
+	IGUI_GenTweaks_ThisTotalGen = "Energia deste gerador: %1",
+    IGUI_GenTweaks_BranchTotalPower = "Energia total da árvore: %1",
     IGUI_GenTweaks_BranchMode = "Config. de energia: ",
 
 }

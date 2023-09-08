@@ -8,7 +8,8 @@ IGUI_EN = {
     IGUI_GenTweaks_NeedsCorrection = "(waiting update)",
     IGUI_GenTweaks_BranchInfo = "Branch ID %1:",
     IGUI_GenTweaks_BranchTotalGen = "Total generators: %1",
-    IGUI_GenTweaks_BranchTotalPower = "Total power: %1",
+    IGUI_GenTweaks_ThisTotalGen = "This generator power: %1",
+    IGUI_GenTweaks_BranchTotalPower = "Total branch power: %1",
     IGUI_GenTweaks_BranchMode = "Power setting: ",
 
 }
