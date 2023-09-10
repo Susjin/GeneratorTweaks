@@ -34,7 +34,6 @@ function ISActivateGenerator:perform()
             ISGenTweaksUtils.saveGeneratorToModData(self.generator)
             ISGenTweaksPowerShare.createAllBranches()
         else
-            ---@type IsoGridSquare
             local genSquare = self.generator:getSquare()
             sendClientCommand("GenTweaks", "startGenerator", {x = genSquare:getX(), y = genSquare:getY(), z = genSquare:getZ()})
         end
@@ -95,14 +94,14 @@ function ISGenTweaksOverride.setTextForDescription(generator, text)
     local branches = ModData.getOrCreate("GenTweaksBranches")
     local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
     if genID > -1 and ISGenTweaksUtils.checkModData(branches) then
-        local branchID = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
-        local branchMode = ISGenTweaksUtils.getBranchModeFromID(branches[branchID])
-        local branchTotal = ISGenTweaksUtils.getBranchTotalPowerFromID(branches[branchID])
-        local branchEach = ISGenTweaksUtils.getBranchEachPowerFromTotal(branches[branchID].share, branchTotal)
+        local branchID = ISGenTweaksUtils.getBranchIDFromGeneratorID(genID)
+        local branchMode = ISGenTweaksUtils.getBranchModeFromSetting(branches[branchID].share)
+        local branchTotal = ISGenTweaksUtils.getBranchTotalPower(branches[branchID])
+        local branchEach = ISGenTweaksUtils.getBranchEachPower(branches[branchID])
         local shareSetting = ISGenTweaksUtils.getShareSetting(branches[branchID].share)
         local correctedPower = ISGenTweaksUtils.roundNumber(ISGenTweaksPowerSet.calculateTotalPower(generator), 2)
         local currentPower = ISGenTweaksUtils.roundNumber(generator:getTotalPowerUsing(), 2)
-        local isActivated = generator:isActivated()
+        local isActivated = generator:isActivated() and ISGenTweaksUtils.isOnBranchSystem(genID)
 
         if (shareSetting == 0) and isActivated then
             if currentPower ~= correctedPower then

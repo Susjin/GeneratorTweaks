@@ -19,7 +19,6 @@ local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
 GenTweaksClientCommands.onClientCommand = function(module, command, player, args)
     if isServer() then
         if module == "GenTweaks" then
-            local branches = ModData.getOrCreate("GenTweaksBranches")
             if command == "startGenerator" then
                 local generator = ISGenTweaksUtils.getGeneratorFromPos(args)
                 if generator then
@@ -30,10 +29,18 @@ GenTweaksClientCommands.onClientCommand = function(module, command, player, args
                     ModData.transmit("GenTweaksBranches")
                 end
             elseif command == "branchSetting" then
-                local generator = ISGenTweaksUtils.getGeneratorFromPos(args)
-                if generator then
-                    ISGenTweaksUtils.setBranchSetting(generator, branches, args.share)
-                end
+                ISGenTweaksUtils.setBranchSetting(args.genID, args.share)
+                ModData.transmit("GenTweaksBranches")
+            elseif command == "addToSystem" then
+                ISGenTweaksUtils.setIsOnBranchSystem(args.genID, true)
+                ISGenTweaksPowerShare.createAllBranches()
+                ModData.transmit("GenTweaksGenerators")
+                ModData.transmit("GenTweaksBranches")
+            elseif command == "removeFromSystem" then
+                ISGenTweaksUtils.setIsOnBranchSystem(args.genID, false)
+                ISGenTweaksPowerShare.createAllBranches()
+                ModData.transmit("GenTweaksGenerators")
+                ModData.transmit("GenTweaksBranches")
             end
             sendServerCommand(module, command, args)
             print("GENTWEAKS: Client command '" .. command .. "' received from player: " .. tostring(player:getUsername()))

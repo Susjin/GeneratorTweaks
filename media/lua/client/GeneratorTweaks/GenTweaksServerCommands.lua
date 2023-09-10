@@ -42,17 +42,18 @@ end
 GenTweaksServerCommands.onServerCommand = function(module, command, args)
     if isClient() then
         if module == "GenTweaks" then
-            local branches = ModData.getOrCreate("GenTweaksBranches")
             if command == "startGenerator" then
+                ModData.request("GenTweaksGenerators")
                 local generator = ISGenTweaksUtils.getGeneratorFromPos(args)
                 if generator then
                     ISGenTweaksPowerSet.correctGenerator(generator)
                 end
             elseif command == "branchSetting" then
-                local generator = ISGenTweaksUtils.getGeneratorFromPos(args)
-                if generator then
-                    ISGenTweaksUtils.setBranchSetting(generator, branches, args.share)
-                end
+                ModData.request("GenTweaksBranches")
+            elseif command == "addToSystem" then
+                ModData.request("GenTweaksGenerators")
+            elseif command == "removeFromSystem" then
+                ModData.request("GenTweaksGenerators")
             end
         end
     end

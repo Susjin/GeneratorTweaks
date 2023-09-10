@@ -136,14 +136,26 @@ function ISGenTweaksUtils.isOnBranchSystem(genID)
 	return totalGenerators[genID].branch and true or false
 end
 
+---Sets if a Generator is on the Branch System
+---@param genID number Generator ID in ModData table
+---@param addOrRemove boolean If true, adds to the Branch System, if false, removes from it
+function ISGenTweaksUtils.setIsOnBranchSystem(genID, addOrRemove)
+	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
+	if not ISGenTweaksUtils.checkModData(totalGenerators) then return false end
+	totalGenerators[genID].branch = addOrRemove
+end
+
 ---Gets in what branch a specific generator is located from it's ID
 ---@param branches KahluaTable ModData table containing all generators 'branches' in the world
----@param id number Generator ID in ModData table
+---@param genID number Generator ID in ModData table
 ---@return number The branch index that the generator is located (-1 if non-existent)
-function ISGenTweaksUtils.getBranchFromGeneratorID(branches, id)
+function ISGenTweaksUtils.getBranchIDFromGeneratorID(genID)
+	local branches = ModData.getOrCreate("GenTweaksBranches")
+	if not ISGenTweaksUtils.checkModData(branches) then return false end
+
 	for i, data in pairs(branches) do
 		for j = 1, #data do
-			if branches[i][j] == id then
+			if branches[i][j] == genID then
 				return i
 			end
 		end
@@ -152,32 +164,31 @@ function ISGenTweaksUtils.getBranchFromGeneratorID(branches, id)
 end
 
 ---Gets a text with the current mode of a given Branch
----@param branches KahluaTable ModData table containing all data from the given Branch
----@return string Text with the correct 'Power setting' of that branch
-function ISGenTweaksUtils.getBranchModeFromID(branches)
-	local focus = ISGenTweaksUtils.getShareSetting(branches.share)
+---@param share number Value inside the 'share' index of a Branch
+---@return string Text with the correct 'Power setting' of that Branch
+function ISGenTweaksUtils.getBranchModeFromSetting(share)
+	local focus = ISGenTweaksUtils.getShareSetting(share)
 	if focus == 0 then
 		return getText("IGUI_GenTweaks_NoPowerSetting")
 	elseif focus == 1 then
 		return getText("IGUI_GenTweaks_PowerSplit")
 	elseif focus == 2 then
-		local text = getText("IGUI_GenTweaks_PowerFocus", branches.share)
-		return text
+		return getText("IGUI_GenTweaks_PowerFocus", share)
 	end
 end
 
 ---Get the total power a whole Branch of generators is consuming
----@param branches KahluaTable ModData table containing all data from the given Branch
+---@param branch KahluaTable ModData table containing all data from the given Branch
 ---@return table Contains the index 'total' and 'count' with the total power and amount of generators counted
-function ISGenTweaksUtils.getBranchTotalPowerFromID(branches)
+function ISGenTweaksUtils.getBranchTotalPower(branch)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
 	if not ISGenTweaksUtils.checkModData(totalGenerators) then return {} end
 
 	local branchPower = {}
 	branchPower.total = 0
 	branchPower.count = 0
-	for j = 1, #branches do
-		local generator = ISGenTweaksUtils.getGeneratorFromPos(totalGenerators[branches[j]])
+	for j = 1, #branch do
+		local generator = ISGenTweaksUtils.getGeneratorFromPos(totalGenerators[branch[j]])
 		if instanceof(generator, "IsoGenerator") and generator:isActivated() then
 			branchPower.total = branchPower.total + generator:getTotalPowerUsing()
 			branchPower.count = branchPower.count + 1
@@ -188,11 +199,11 @@ function ISGenTweaksUtils.getBranchTotalPowerFromID(branches)
 end
 
 ---Gets the power that needs to be set to each generator in a Branch
----@param share number 'share' index of the given Branch
----@param branchPower table Contains the index 'total' and 'count' with the total power and amount of generators counted
+---@param branch KahluaTable ModData table containing all data from the given Branch
 ---@return number Power to be set in each generator
-function ISGenTweaksUtils.getBranchEachPowerFromTotal(share, branchPower)
-	local shareSetting = ISGenTweaksUtils.getShareSetting(share)
+function ISGenTweaksUtils.getBranchEachPower(branch)
+	local branchPower = ISGenTweaksUtils.getBranchTotalPower(branch)
+	local shareSetting = ISGenTweaksUtils.getShareSetting(branch.share)
 	if shareSetting == 1 then
 		local average = (branchPower.total / branchPower.count)
 		if branchPower.count == 0 then average = 0 end
@@ -239,12 +250,12 @@ end
 
 -- ---------------- Functions related to actions on the ContextMenu ---------------- --
 ---Sets a given share setting to the current generator branch
----@param generator IsoGenerator Generator being interacted with
----@param branches KahluaTable ModData table containing all generators 'branches' in the world
+---@param genID number ID of the Generator being interacted with
 ---@param setting number Branch setting 'share' value to be set in the branch
-function ISGenTweaksUtils.setBranchSetting(generator, branches, setting)
-	local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
-	local branchIndex = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
+function ISGenTweaksUtils.setBranchSetting(genID, setting)
+	local branches = ModData.getOrCreate("GenTweaksBranches")
+	if not ISGenTweaksUtils.checkModData(branches) then return false end
+	local branchIndex = ISGenTweaksUtils.getBranchIDFromGeneratorID(genID)
 
 	if (branchIndex ~= -1) and (genID ~= -1) then
 		branches[branchIndex].share = setting

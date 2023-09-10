@@ -11,7 +11,9 @@ local ISGenTweaksContextMenu = {}
 ----------------------------------------------------------------------------------------------
 --Setting up locals
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
-local isSP = (isClient() == false) and (isServer() == false)
+local ISGenTweaksInteractAction = require "GeneratorTweaks/TimedActions/ISGenTweaksInteractAction"
+
+local walkToAdjacent = luautils.walkAdj
 
 -- ---------------- Functions related to Tooltips on the ContextMenu ---------------- --
 ---Creates a tooltip for the option 'Take Generator'
@@ -99,44 +101,49 @@ function ISGenTweaksContextMenu.removeFromSystemTooltip(removeOption, player, ge
 end
 
 -- ---------------- Functions related to actions on the ContextMenu ---------------- --
----Sets a given share setting to the current generator branch
----@param generator IsoGenerator Generator being interacted with
----@param player IsoPlayer Player interacting with the Generator
----@param branches KahluaTable ModData table containing all generators 'branches' in the world
----@param setting number Branch setting 'share' value to be set in the branch
-function ISGenTweaksContextMenu.onClickBranchSettings(generator, player, branches, setting)
-    if isSP then
-        ISGenTweaksUtils.setBranchSetting(generator, branches, setting)
-    else
-        local genSquare = generator:getSquare()
-        sendClientCommand("GenTweaks", "branchSetting", {x = genSquare:getX(), y = genSquare:getY(), z = genSquare:getZ(), share = setting})
+function ISGenTweaksContextMenu.checkInteractItem(player)
+    local playerInventory = player:getInventory()
+    local returnToContainer = {}
+    local screwdriver = playerInventory:getItemFromTypeRecurse("Screwdriver")
+    if screwdriver then
+        table.insert(returnToContainer, screwdriver)
+        ISInventoryPaneContextMenu.transferIfNeeded(player, screwdriver)
+        return screwdriver, returnToContainer
     end
-    HaloTextHelper.addText(player, getText("IGUI_GenTweaks_SettingsApplied", ISGenTweaksUtils.getBranchFromGeneratorID(branches, ISGenTweaksUtils.getIDFromGenerator(generator))), HaloTextHelper.COLOR_GREEN)
+    return nil
+end
+
+---Sets a given share setting to the current generator branch
+---@param generator IsoGenerator The Generator object that is being interacted
+---@param player IsoPlayer Player interacting with the Generator
+---@param setting number Branch setting 'share' value to be set in the branch
+function ISGenTweaksContextMenu.onClickBranchSettings(player, generator, setting)
+    walkToAdjacent(player, generator:getSquare())
+    local screwdriver, returnItems = ISGenTweaksContextMenu.checkInteractItem(player)
+    ISTimedActionQueue.add(ISGenTweaksInteractAction:new(player, screwdriver, "branchSetting", generator, setting))
+    ISCraftingUI.ReturnItemsToOriginalContainer(player, returnItems)
 end
 
 ---Adds the selected generator to the Branch System
 ---@param player IsoPlayer Player adding the generator to the System
----@param totalGenerators KahluaTable ModData table containing all Generator IDs
----@param genID number Generator ID to get added
-function ISGenTweaksContextMenu.onClickAddGeneratorToSystem(player, totalGenerators, genID)
+---@param generator IsoGenerator The Generator object that is being interacted
+function ISGenTweaksContextMenu.onClickAddGeneratorToSystem(player, generator)
+    walkToAdjacent(player, generator:getSquare())
     local electricWire = player:getInventory():getItemFromTypeRecurse("ElectricWire")
-    --ISInventoryPaneContextMenu.transferIfNeeded(player, electricWire)
-
-    if electricWire then
-        electricWire:getContainer():Remove(electricWire)
-        totalGenerators[genID].branch = true
-        HaloTextHelper.addText(player, getText("IGUI_GenTweaks_AddedToSystem"), HaloTextHelper.COLOR_GREEN)
-    end
+    ISInventoryPaneContextMenu.transferIfNeeded(player, electricWire)
+    local screwdriver, returnItems = ISGenTweaksContextMenu.checkInteractItem(player)
+    ISTimedActionQueue.add(ISGenTweaksInteractAction:new(player, screwdriver, "addToSystem", generator))
+    ISCraftingUI.ReturnItemsToOriginalContainer(player, returnItems)
 end
 
 ---Removes the selected generator from the Branch System
 ---@param player IsoPlayer Player adding the generator to the System
----@param totalGenerators KahluaTable ModData table containing all Generator IDs
----@param genID number Generator ID to get added
-function ISGenTweaksContextMenu.onClickRemoveGeneratorFromSystem(player, totalGenerators, genID)
-    player:getInventory():AddItem("Radio.ElectricWire")
-    totalGenerators[genID].branch = false
-    HaloTextHelper.addText(player, getText("IGUI_GenTweaks_RemovedFromSystem"), HaloTextHelper.COLOR_GREEN)
+---@param generator IsoGenerator The Generator object that is being interacted
+function ISGenTweaksContextMenu.onClickRemoveGeneratorFromSystem(player, generator)
+    walkToAdjacent(player, generator:getSquare())
+    local screwdriver, returnItems = ISGenTweaksContextMenu.checkInteractItem(player)
+    ISTimedActionQueue.add(ISGenTweaksInteractAction:new(player, screwdriver, "removeFromSystem", generator))
+    ISCraftingUI.ReturnItemsToOriginalContainer(player, returnItems)
 end
 
 -- ---------------- Functions related to ContextMenu ---------------- --
@@ -157,11 +164,11 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
     --if getDebug() then contextMenu:addOption("test range", worldObjects[1]:getSquare(), function(square, playerSquare) print(square:DistToProper(playerSquare))  end, player:getSquare()) end
 
     if generator then
+        local branches = ModData.getOrCreate("GenTweaksBranches")
         local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
-        if genID > 0 then
+        if genID > 0 and ISGenTweaksUtils.checkModData(branches) then
             -- ------ Setting up locals -- ------
-            local branches = ModData.getOrCreate("GenTweaksBranches")
-            local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
+            local isOnBranchSystem = ISGenTweaksUtils.isOnBranchSystem(genID)
             local generatorActive = generator:isActivated()
 
             -- ------ Creating submenu  ------ --
@@ -172,20 +179,20 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
 
             if not generatorActive then
                 -- ------ Adding/removing to/from Branch System  ------ --
-                if not totalGenerators[genID].branch then
-                    local addOption = generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_AddToSystem"), player, ISGenTweaksContextMenu.onClickAddGeneratorToSystem, totalGenerators, genID)
+                if not isOnBranchSystem then
+                    local addOption = generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_AddToSystem"), player, ISGenTweaksContextMenu.onClickAddGeneratorToSystem, generator)
                     ISGenTweaksContextMenu.addToSystemTooltip(addOption, player, genID, generator:getTextureName())
-                elseif totalGenerators[genID].branch then
-                    local removeOption = generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_RemoveFromSystem"), player, ISGenTweaksContextMenu.onClickRemoveGeneratorFromSystem, totalGenerators, genID)
+                elseif isOnBranchSystem then
+                    local removeOption = generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_RemoveFromSystem"), player, ISGenTweaksContextMenu.onClickRemoveGeneratorFromSystem, generator)
                     ISGenTweaksContextMenu.removeFromSystemTooltip(removeOption, player, genID, generator:getTextureName())
                 end
             else
                 -- ------ Branch settings options ------ --
-                if totalGenerators[genID].branch then
+                if isOnBranchSystem then
                     if player:isRecipeKnown("Generator") then -- Generator magazine is read
-                        generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Disable"), generator, ISGenTweaksContextMenu.onClickBranchSettings, player, branches, -1)
-                        generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Split"), generator, ISGenTweaksContextMenu.onClickBranchSettings, player, branches, 0)
-                        generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Focus"), generator, ISGenTweaksContextMenu.onClickBranchSettings, player, branches, genID)
+                        generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Disable"), player, ISGenTweaksContextMenu.onClickBranchSettings, generator, -1)
+                        generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Split"), player, ISGenTweaksContextMenu.onClickBranchSettings, generator, 0)
+                        generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Focus"), player, ISGenTweaksContextMenu.onClickBranchSettings, generator, genID)
                     else
                         generatorMenu.notAvailable = true
                         generatorMenu.toolTip = ISWorldObjectContextMenu.addToolTip()
@@ -202,8 +209,8 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
             end
 
             -- ------ Override tooltip of the 'Take generator' option ------ --
-            if ISGenTweaksUtils.checkModData(branches) and not generator:isConnected() then
-                local branchID = ISGenTweaksUtils.getBranchFromGeneratorID(branches, genID)
+            if not generator:isConnected() then
+                local branchID = ISGenTweaksUtils.getBranchIDFromGeneratorID(genID)
                 if genID == branchID then
                     local option = contextMenu:getOptionFromName(getText("ContextMenu_GeneratorTake"))
                     ISGenTweaksContextMenu.takeGeneratorTooltip(option, genID)

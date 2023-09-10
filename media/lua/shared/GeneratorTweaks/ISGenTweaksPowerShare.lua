@@ -105,8 +105,8 @@ function ISGenTweaksPowerShare.splitPowerBranch(totalGenerators, branches)
     --First we get the sum of all generators and make a average
     for i, data in pairs(branches) do
         if not ((data.share == -1) or (data.share == nil)) then
-            branchPower[i] = ISGenTweaksUtils.getBranchTotalPowerFromID(branches[i])
-            branchPower[i].set = ISGenTweaksUtils.getBranchEachPowerFromTotal(data.share, branchPower[i])
+            branchPower[i] = ISGenTweaksUtils.getBranchTotalPower(branches[i])
+            branchPower[i].set = ISGenTweaksUtils.getBranchEachPower(branches[i])
         end
     end
     --Split all power between generators
