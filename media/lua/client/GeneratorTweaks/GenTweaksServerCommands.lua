@@ -55,6 +55,7 @@ GenTweaksServerCommands.onServerCommand = function(module, command, args)
             elseif command == "removeFromSystem" then
                 ModData.request("GenTweaksGenerators")
             end
+            print("GENTWEAKS: Command: '" .. command .. "' received from the server")
         end
     end
 end

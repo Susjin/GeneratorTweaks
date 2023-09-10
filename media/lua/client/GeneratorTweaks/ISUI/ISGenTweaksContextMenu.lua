@@ -187,7 +187,7 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
             local generatorSubMenu = ISContextMenu:getNew(contextMenu)
             contextMenu:addSubMenu(generatorMenu, generatorSubMenu)
 
-            if not generatorActive then
+            if not generatorActive and generatorConnected then
                 -- ------ Adding/removing to/from Branch System  ------ --
                 if not isOnBranchSystem then
                     local addOption = generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_AddToSystem"), player, ISGenTweaksContextMenu.onClickAddGeneratorToSystem, generator)

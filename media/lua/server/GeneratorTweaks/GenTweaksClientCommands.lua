@@ -51,7 +51,7 @@ GenTweaksClientCommands.onClientCommand = function(module, command, player, args
                 ModData.transmit("GenTweaksBranches")
             end
             sendServerCommand(module, command, args)
-            print("GENTWEAKS: Client command '" .. command .. "' received from player: " .. tostring(player:getUsername()))
+            print("GENTWEAKS: Command: '" .. command .. "' received from client player: " .. tostring(player:getUsername()))
         end
     end
 end
