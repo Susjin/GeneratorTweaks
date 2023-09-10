@@ -1,4 +1,4 @@
-IGUI_EN = {
+﻿IGUI_EN = {
 
     IGUI_GenTweaks_NotInModData = "This Generator is not being handled by Generator Tweaks. <LINE> Please restart this Generator.",
     IGUI_GenTweaks_NoPowerSetting = "Disabled",
@@ -11,5 +11,8 @@ IGUI_EN = {
     IGUI_GenTweaks_ThisTotalGen = "This generator power: %1",
     IGUI_GenTweaks_BranchTotalPower = "Total branch power: %1",
     IGUI_GenTweaks_BranchMode = "Power setting: ",
+    IGUI_GenTweaks_SettingsApplied = "Successfully applied settings to Branch %1!",
+    IGUI_GenTweaks_AddedToSystem = "Successfully added to the Branch System!",
+    IGUI_GenTweaks_RemovedFromSystem = "Successfully removed from the Branch System!",
 
 }

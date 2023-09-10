@@ -11,5 +11,8 @@ IGUI_PTBR = {
 	IGUI_GenTweaks_ThisTotalGen = "Energia deste gerador: %1",
     IGUI_GenTweaks_BranchTotalPower = "Energia total da árvore: %1",
     IGUI_GenTweaks_BranchMode = "Config. de energia: ",
+	IGUI_GenTweaks_SettingsApplied = "Configurações aplicadas com sucesso à Árvore %1!",
+    IGUI_GenTweaks_AddedToSystem = "Adicionado com sucesso ao Sistema de Árvores!",
+    IGUI_GenTweaks_RemovedFromSystem = "Removido com sucesso do Sistema de Árvores!",
 
 }

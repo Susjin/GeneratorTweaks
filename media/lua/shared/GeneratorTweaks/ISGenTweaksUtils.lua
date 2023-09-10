@@ -35,7 +35,6 @@ function ISGenTweaksUtils.checkModData(ModDataTable)
 end
 
 ---Get all the Good/Bad colors from acessibility settings
----@return table Containing the colors white, good and bad
 function ISGenTweaksUtils.getColorsFromAcessibility()
 	local colors = {}
 	colors.white = " <RGB:1,1,1> "
@@ -128,6 +127,15 @@ function ISGenTweaksUtils.getIDFromGenerator(generator)
 	return -1
 end
 
+---Checks if a Generator is on the Branch System
+---@param genID number Generator ID in ModData table
+---@return number The branch index that the generator is located (-1 if non-existent)
+function ISGenTweaksUtils.isOnBranchSystem(genID)
+	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
+	if not ISGenTweaksUtils.checkModData(totalGenerators) then return false end
+	return totalGenerators[genID].branch and true or false
+end
+
 ---Gets in what branch a specific generator is located from it's ID
 ---@param branches KahluaTable ModData table containing all generators 'branches' in the world
 ---@param id number Generator ID in ModData table
@@ -202,11 +210,13 @@ function ISGenTweaksUtils.saveGeneratorToModData(generator)
 	local exists = false
 	local genID = 0
 	local generatorSquare = generator:getSquare()
-	local generatorData = {x = generatorSquare:getX(), y = generatorSquare:getY(), z = generatorSquare:getZ()}
+	local generatorData = {x = generatorSquare:getX(), y = generatorSquare:getY(), z = generatorSquare:getZ(), branch = false}
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-	for _, data in pairs(totalGenerators) do
+	for i, data in pairs(totalGenerators) do
 		if data.x == generatorData.x and data.y == generatorData.y and data.z == generatorData.z then
 			exists = true
+			genID = i
+			break
 		end
 	end
 	if not exists then
@@ -220,6 +230,10 @@ function ISGenTweaksUtils.saveGeneratorToModData(generator)
 			end
 		until (sameID == false)
 		totalGenerators[genID] = generatorData
+	else
+		if totalGenerators[genID].branch == nil then
+			totalGenerators[genID].branch = false
+		end
 	end
 end
 

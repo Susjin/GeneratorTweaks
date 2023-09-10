@@ -23,7 +23,7 @@ function ISGenTweaksPowerShare.getAdjacentGenerators(generator, totalGenerators)
     local currentGeneratorAdjacent = {}
     for i, data in pairs(totalGenerators) do
         local generatorModDataSquare = getCell():getGridSquare(data.x, data.y, data.z)
-        if generatorModDataSquare and (generatorModDataSquare ~= currentGeneratorSquare) and (currentGeneratorSquare:DistToProper(generatorModDataSquare) <= 20) then
+        if generatorModDataSquare and (generatorModDataSquare ~= currentGeneratorSquare) and (currentGeneratorSquare:DistToProper(generatorModDataSquare) <= 20) and data.branch == true then
             table.insert(currentGeneratorAdjacent, i)
             --ISGenTweaksUtils.printPosFromData(data)
         end
