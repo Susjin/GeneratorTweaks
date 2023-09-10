@@ -1,6 +1,8 @@
 IGUI_PTBR = {
 
-    IGUI_GenTweaks_NotInModData = "Este gerador não está sendo controlado por Generator Tweaks. <LINE> Por-favor, reinicie este gerador.",
+    IGUI_GenTweaks_NotInModData = "Este gerador não está sendo controlado por Generator Tweaks.",
+	IGUI_GenTweaks_NotInModDataConnected = "Por-favor, reinicie este gerador.",
+    IGUI_GenTweaks_NotInModDataNotConnected = "Por-favor, conecte este gerador.",
     IGUI_GenTweaks_NoPowerSetting = "Desativado",
     IGUI_GenTweaks_PowerSplit = "Dividir consumo de energia",
     IGUI_GenTweaks_PowerFocus = "Concentrar consumo de energia",

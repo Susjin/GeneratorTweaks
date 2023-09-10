@@ -4,5 +4,5 @@ Tooltip_PTBR = {
     Tooltip_GenTweaks_WarningMessage = "Este é o Gerador Mestre da Árvore! <LINE> Se você pegar este gerador, todas as configurações da sua Árvore serão reiniciadas! <LINE> Prossiga com cautela!",
 	Tooltip_GenTweaks_AddToSystemDescription = "Adiciona o Gerador selecionado ao Sistema de Árvores para ser gerenciado.",
     Tooltip_GenTweaks_RemoveFromSystemDescription = "Remove o Gerador selecionado do Sistema de Árvores, assim ele não será mais gerenciado.",
-
+	Tooltip_GenTweaks_StillInSystem = "Você precisa remover o Gerador do Sistema de Árvores antes de pegá-lo.",
 }
