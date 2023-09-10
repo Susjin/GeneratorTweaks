@@ -4,5 +4,6 @@
     Tooltip_GenTweaks_WarningMessage = "This is the Master Branch Generator! <LINE> If you pick up this generator, all of it's Branch configuration will get reset! <LINE> Proceed with caution!",
     Tooltip_GenTweaks_AddToSystemDescription = "Adds the selected Generator to the Branch System to be managed.",
     Tooltip_GenTweaks_RemoveFromSystemDescription = "Removes the selected Generator from the Branch System, so it will not be managed anymore.",
+    Tooltip_GenTweaks_StillInSystem = "You need to remove the Generator from the Branch System before you can take it",
 
 }

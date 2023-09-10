@@ -40,6 +40,20 @@ function ISActivateGenerator:perform()
     end
 end
 
+local oldPlugPerform = ISPlugGenerator.perform
+function ISPlugGenerator:perform()
+    oldPlugPerform(self)
+    if self.plug == true then
+        if isSP then
+            ISGenTweaksUtils.saveGeneratorToModData(self.generator)
+            ISGenTweaksPowerShare.createAllBranches()
+        else
+            local genSquare = self.generator:getSquare()
+            sendClientCommand("GenTweaks", "plugGenerator", {x = genSquare:getX(), y = genSquare:getY(), z = genSquare:getZ()})
+        end
+    end
+end
+
 -- ---------------- Functions related to the Generator InfoWindow ---------------- --
 ---Overwrite default vanilla behaviour to set the name of the Generator InfoWindow
 local oldSetObject = ISGeneratorInfoWindow.setObject
@@ -144,7 +158,8 @@ function ISGenTweaksOverride.setTextForDescription(generator, text)
             text = text .. " <LINE> " .. getText("IGUI_GenTweaks_PowerFocusGen", branches[branchID].share)
         end
     else
-        text = text .. " <LINE><LINE><INDENT:0> " .. colors.bad .. getText("IGUI_GenTweaks_NotInModData")
+        if generator:isConnected() then text = text .. " <LINE><LINE><INDENT:0> " .. colors.bad .. getText("IGUI_GenTweaks_NotInModData") .. " <LINE> " .. getText("IGUI_GenTweaks_NotInModDataConnected")
+        else text = text .. " <LINE><LINE><INDENT:0> " .. colors.bad .. getText("IGUI_GenTweaks_NotInModData") .. " <LINE> " .. getText("IGUI_GenTweaks_NotInModDataNotConnected") end
     end
     return text
 end

@@ -19,16 +19,22 @@ local walkToAdjacent = luautils.walkAdj
 ---Creates a tooltip for the option 'Take Generator'
 ---@param takeOption table Contains the given option to set a tooltip
 ---@param genID number Tooltip's Generator ID
-function ISGenTweaksContextMenu.takeGeneratorTooltip(takeOption, genID)
+---@param texture string Generator texture to be set
+function ISGenTweaksContextMenu.takeGeneratorTooltip(takeOption, genID, texture)
     local colors = ISGenTweaksUtils.getColorsFromAcessibility()
     takeOption.toolTip = ISToolTip:new()
     takeOption.toolTip:initialise()
     takeOption.toolTip:setVisible(true)
-    takeOption.toolTip.maxLineWidth = 300
-    takeOption.toolTip:setName(getText("ContextMenu_GeneratorTake") .. " - ID: " .. tostring(genID))
+    takeOption.toolTip.maxLineWidth = 280
 
-    takeOption.toolTip.description = " <CENTRE><H1><SIZE:large> " .. colors.bad .. getText("Tooltip_GenTweaks_Warning") .. " <LINE> "
-    takeOption.toolTip.description = takeOption.toolTip.description .. " <TEXT><CENTRE><SIZE:small> " .. colors.white .. getText("Tooltip_GenTweaks_WarningMessage")
+    if not takeOption.notAvailable then
+        takeOption.toolTip:setName(getText("ContextMenu_GeneratorTake") .. " - ID: " .. tostring(genID))
+        takeOption.toolTip:setTexture(texture)
+        takeOption.toolTip.description = " <CENTRE><H1><SIZE:large> " .. colors.bad .. getText("Tooltip_GenTweaks_Warning") .. " <LINE> "
+        takeOption.toolTip.description = takeOption.toolTip.description .. " <TEXT><CENTRE><SIZE:small> " .. colors.white .. getText("Tooltip_GenTweaks_WarningMessage")
+    else
+        takeOption.toolTip.description = colors.white .. getText("Tooltip_GenTweaks_StillInSystem")
+    end
 end
 
 ---Creates a tooltip and check validation of the option Add to Branch System
@@ -162,15 +168,19 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
     end
 
     --if getDebug() then contextMenu:addOption("test range", worldObjects[1]:getSquare(), function(square, playerSquare) print(square:DistToProper(playerSquare))  end, player:getSquare()) end
+    --local playerModData = player:getModData()
 
     if generator then
         local branches = ModData.getOrCreate("GenTweaksBranches")
         local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
         if genID > 0 and ISGenTweaksUtils.checkModData(branches) then
-            -- ------ Setting up locals -- ------
+            ------------------ #Setting up locals# ------------------
             local isOnBranchSystem = ISGenTweaksUtils.isOnBranchSystem(genID)
+            local generatorConnected = generator:isConnected()
             local generatorActive = generator:isActivated()
+            local generatorTexture = generator:getTextureName()
 
+            ------------------ #Branch System# ------------------
             -- ------ Creating submenu  ------ --
             local generatorMenu = contextMenu:insertOptionAfter(getText("ContextMenu_GeneratorInfo"), getText("ContextMenu_GenTweaks_BranchMenu"), worldObjects, nil)
             ---@type ISContextMenu
@@ -181,10 +191,10 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
                 -- ------ Adding/removing to/from Branch System  ------ --
                 if not isOnBranchSystem then
                     local addOption = generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_AddToSystem"), player, ISGenTweaksContextMenu.onClickAddGeneratorToSystem, generator)
-                    ISGenTweaksContextMenu.addToSystemTooltip(addOption, player, genID, generator:getTextureName())
+                    ISGenTweaksContextMenu.addToSystemTooltip(addOption, player, genID, generatorTexture)
                 elseif isOnBranchSystem then
                     local removeOption = generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_RemoveFromSystem"), player, ISGenTweaksContextMenu.onClickRemoveGeneratorFromSystem, generator)
-                    ISGenTweaksContextMenu.removeFromSystemTooltip(removeOption, player, genID, generator:getTextureName())
+                    ISGenTweaksContextMenu.removeFromSystemTooltip(removeOption, player, genID, generatorTexture)
                 end
             else
                 -- ------ Branch settings options ------ --
@@ -201,19 +211,28 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
                 end
             end
 
+            ------------------ #Vanilla Overrides# ------------------
             -- ------ Override tooltip of 'Generator info' option ------ --
+
             if player:DistToSquared(generator:getX() + 0.5, generator:getY() + 0.5) < 2 * 2 then
-                local option = contextMenu:getOptionFromName(getText("ContextMenu_GeneratorInfo"))
-                option.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
-                option.toolTip.maxLineWidth = 400
+                local optionInfo = contextMenu:getOptionFromName(getText("ContextMenu_GeneratorInfo"))
+                optionInfo.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
+                optionInfo.toolTip:setTexture(generatorTexture)
+                optionInfo.toolTip.maxLineWidth = 400
+
+                if not generatorActive and generatorConnected then
+                    local option = contextMenu:getOptionFromName(getText("ContextMenu_Turn_On"))
+                    option.toolTip = nil
+                end
             end
 
             -- ------ Override tooltip of the 'Take generator' option ------ --
-            if not generator:isConnected() then
+            if not generatorConnected then
                 local branchID = ISGenTweaksUtils.getBranchIDFromGeneratorID(genID)
                 if genID == branchID then
                     local option = contextMenu:getOptionFromName(getText("ContextMenu_GeneratorTake"))
-                    ISGenTweaksContextMenu.takeGeneratorTooltip(option, genID)
+                    if isOnBranchSystem then option.notAvailable = true end
+                    ISGenTweaksContextMenu.takeGeneratorTooltip(option, genID, generatorTexture)
                 end
             end
 

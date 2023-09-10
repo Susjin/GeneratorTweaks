@@ -1,6 +1,8 @@
 ﻿IGUI_EN = {
 
-    IGUI_GenTweaks_NotInModData = "This Generator is not being handled by Generator Tweaks. <LINE> Please restart this Generator.",
+    IGUI_GenTweaks_NotInModData = "This Generator is not being handled by Generator Tweaks.",
+    IGUI_GenTweaks_NotInModData = "Please restart this Generator.",
+    IGUI_GenTweaks_NotInModData = "Please connect this Generator.",
     IGUI_GenTweaks_NoPowerSetting = "Disabled",
     IGUI_GenTweaks_PowerSplit = "Split power consumption",
     IGUI_GenTweaks_PowerFocus = "Focus power consumption",

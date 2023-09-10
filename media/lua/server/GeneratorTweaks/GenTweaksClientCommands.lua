@@ -28,6 +28,14 @@ GenTweaksClientCommands.onClientCommand = function(module, command, player, args
                     ModData.transmit("GenTweaksGenerators")
                     ModData.transmit("GenTweaksBranches")
                 end
+            elseif command == "plugGenerator" then
+                local generator = ISGenTweaksUtils.getGeneratorFromPos(args)
+                if generator then
+                    ISGenTweaksUtils.saveGeneratorToModData(generator)
+                    ISGenTweaksPowerShare.createAllBranches()
+                    ModData.transmit("GenTweaksGenerators")
+                    ModData.transmit("GenTweaksBranches")
+                end
             elseif command == "branchSetting" then
                 ISGenTweaksUtils.setBranchSetting(args.genID, args.share)
                 ModData.transmit("GenTweaksBranches")
