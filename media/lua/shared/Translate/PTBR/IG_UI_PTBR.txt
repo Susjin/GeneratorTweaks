@@ -16,5 +16,6 @@ IGUI_PTBR = {
 	IGUI_GenTweaks_SettingsApplied = "Configurações aplicadas com sucesso à Árvore %1!",
     IGUI_GenTweaks_AddedToSystem = "Adicionado com sucesso ao Sistema de Árvores!",
     IGUI_GenTweaks_RemovedFromSystem = "Removido com sucesso do Sistema de Árvores!",
+	IGUI_GenTweaks_NotInSystem = "Este gerador não está no Sistema de Árvores.",
 
 }

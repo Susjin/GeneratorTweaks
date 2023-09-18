@@ -31,6 +31,9 @@ GenTweaksServerCommands.onReceiveGlobalModData = function(ModDataKey, ModDataTab
         if ModDataTable and (ModDataKey == "GenTweaksGenerators" or ModDataKey == "GenTweaksBranches") then
             print("GENTWEAKS: Received ModData Table: " .. ModDataKey)
             local table = ModData.getOrCreate(ModDataKey)
+            for i, _ in pairs(table) do
+                table[i] = nil
+            end
             for i, data in pairs(ModDataTable) do
                 table[i] = data
             end

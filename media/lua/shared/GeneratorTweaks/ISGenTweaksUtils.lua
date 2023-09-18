@@ -143,10 +143,15 @@ function ISGenTweaksUtils.setIsOnBranchSystem(genID, addOrRemove)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
 	if not ISGenTweaksUtils.checkModData(totalGenerators) then return false end
 	totalGenerators[genID].branch = addOrRemove
+	if addOrRemove == false then
+		local branchID = ISGenTweaksUtils.getBranchIDFromGeneratorID(genID)
+		if branchID == genID then
+			ModData.getOrCreate("GenTweaksBranches")[genID].share = -1
+		end
+	end
 end
 
 ---Gets in what branch a specific generator is located from it's ID
----@param branches KahluaTable ModData table containing all generators 'branches' in the world
 ---@param genID number Generator ID in ModData table
 ---@return number The branch index that the generator is located (-1 if non-existent)
 function ISGenTweaksUtils.getBranchIDFromGeneratorID(genID)

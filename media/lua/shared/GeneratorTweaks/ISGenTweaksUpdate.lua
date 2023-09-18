@@ -18,8 +18,8 @@ local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 function ISGenTweaksUpdate.updateEveryMinute()
     --Gets all tables from Global ModData
     local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
-    if not ISGenTweaksUtils.checkModData(totalGenerators) then return end
     local branches = ModData.getOrCreate("GenTweaksBranches")
+    if not ISGenTweaksUtils.checkModData(totalGenerators) then return end
     if not ISGenTweaksUtils.checkModData(branches) then return end
 
     --Corrects the weird consumption value

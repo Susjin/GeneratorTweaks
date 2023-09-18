@@ -65,6 +65,10 @@ function ISGenTweaksPowerSet.correctAllGenerators(totalGenerators)
             if generator == "notFound" then
                 totalGenerators[i] = nil
                 ISGenTweaksPowerShare.createAllBranches()
+                if isServer() then
+                    ModData.transmit("GenTweaksGenerators")
+                    ModData.transmit("GenTweaksBranches")
+                end
             else
                 if instanceof(generator, "IsoGenerator") and generator:isActivated() then
                     ISGenTweaksPowerSet.correctGenerator(generator)

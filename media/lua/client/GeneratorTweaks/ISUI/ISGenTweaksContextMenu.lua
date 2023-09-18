@@ -16,23 +16,64 @@ local ISGenTweaksInteractAction = require "GeneratorTweaks/TimedActions/ISGenTwe
 local walkToAdjacent = luautils.walkAdj
 
 -- ---------------- Functions related to Tooltips on the ContextMenu ---------------- --
+---Creates tooltips for the options of power distribution
+---@param disableOption table Contains the disable option to set a tooltip
+---@param splitOption table Contains the split option to set a tooltip
+---@param focusOption table Contains the focus option to set a tooltip
+function ISGenTweaksContextMenu.branchSettingTooltip(disableOption, splitOption, focusOption, player)
+    local colors = ISGenTweaksUtils.getColorsFromAcessibility()
+    colors.use = colors.white
+    local playerInventory = player:getInventory()
+    local screwdriver = playerInventory:getCountTypeRecurse("Screwdriver")
+    local electrical = player:getPerkLevel(Perks.Electricity)
+
+    if screwdriver < 1 or electrical < 1 then
+        disableOption.notAvailable = true
+        splitOption.notAvailable = true
+        focusOption.notAvailable = true
+    end
+
+    disableOption.toolTip = ISToolTip:new()
+    disableOption.toolTip:initialise()
+    disableOption.toolTip:setVisible(true)
+    disableOption.toolTip:setName(getText("ContextMenu_GenTweaks_Disable"))
+    disableOption.toolTip.description = getText("Tooltip_craft_Needs") .. ": <LINE> "
+    if screwdriver > 0 then colors.use = colors.good else colors.use = colors.bad end
+        disableOption.toolTip.description = disableOption.toolTip.description .. colors.use .. getItemNameFromFullType("Base.Screwdriver") .. " " .. tostring(screwdriver) .. "/1 <LINE> "
+    if electrical > 0 then colors.use = colors.good else colors.use = colors.bad end
+        disableOption.toolTip.description = disableOption.toolTip.description .. colors.use .. " <LINE> " .. getText("IGUI_perks_Electricity") .. " " .. tostring(electrical) .. "/1 <LINE> "
+
+    splitOption.toolTip = ISToolTip:new()
+    splitOption.toolTip:initialise()
+    splitOption.toolTip:setVisible(true)
+    splitOption.toolTip:setName(getText("ContextMenu_GenTweaks_Split"))
+    splitOption.toolTip.description = getText("Tooltip_craft_Needs") .. ": <LINE> "
+    if screwdriver > 0 then colors.use = colors.good else colors.use = colors.bad end
+        splitOption.toolTip.description = splitOption.toolTip.description .. colors.use .. getItemNameFromFullType("Base.Screwdriver") .. " " .. tostring(screwdriver) .. "/1 <LINE> "
+    if electrical > 0 then colors.use = colors.good else colors.use = colors.bad end
+        splitOption.toolTip.description = splitOption.toolTip.description .. colors.use .. " <LINE> " .. getText("IGUI_perks_Electricity") .. " " .. tostring(electrical) .. "/1 <LINE> "
+
+    focusOption.toolTip = ISToolTip:new()
+    focusOption.toolTip:initialise()
+    focusOption.toolTip:setVisible(true)
+    focusOption.toolTip:setName(getText("ContextMenu_GenTweaks_Focus"))
+    focusOption.toolTip.description = getText("Tooltip_craft_Needs") .. ": <LINE> "
+    if screwdriver > 0 then colors.use = colors.good else colors.use = colors.bad end
+        focusOption.toolTip.description = focusOption.toolTip.description .. colors.use .. getItemNameFromFullType("Base.Screwdriver") .. " " .. tostring(screwdriver) .. "/1 <LINE> "
+    if electrical > 0 then colors.use = colors.good else colors.use = colors.bad end
+        focusOption.toolTip.description = focusOption.toolTip.description .. colors.use .. " <LINE> " .. getText("IGUI_perks_Electricity") .. " " .. tostring(electrical) .. "/1 <LINE> "
+
+end
+
 ---Creates a tooltip for the option 'Take Generator'
 ---@param takeOption table Contains the given option to set a tooltip
----@param genID number Tooltip's Generator ID
----@param texture string Generator texture to be set
-function ISGenTweaksContextMenu.takeGeneratorTooltip(takeOption, genID, texture)
-    local colors = ISGenTweaksUtils.getColorsFromAcessibility()
-    takeOption.toolTip = ISToolTip:new()
-    takeOption.toolTip:initialise()
-    takeOption.toolTip:setVisible(true)
-    takeOption.toolTip.maxLineWidth = 280
-
-    if not takeOption.notAvailable then
-        takeOption.toolTip:setName(getText("ContextMenu_GeneratorTake") .. " - ID: " .. tostring(genID))
-        takeOption.toolTip:setTexture(texture)
-        takeOption.toolTip.description = " <CENTRE><H1><SIZE:large> " .. colors.bad .. getText("Tooltip_GenTweaks_Warning") .. " <LINE> "
-        takeOption.toolTip.description = takeOption.toolTip.description .. " <TEXT><CENTRE><SIZE:small> " .. colors.white .. getText("Tooltip_GenTweaks_WarningMessage")
-    else
+function ISGenTweaksContextMenu.takeGeneratorTooltip(takeOption)
+    if takeOption.notAvailable then
+        local colors = ISGenTweaksUtils.getColorsFromAcessibility()
+        takeOption.toolTip = ISToolTip:new()
+        takeOption.toolTip:initialise()
+        takeOption.toolTip:setVisible(true)
+        takeOption.toolTip.maxLineWidth = 280
         takeOption.toolTip.description = colors.white .. getText("Tooltip_GenTweaks_StillInSystem")
     end
 end
@@ -52,12 +93,12 @@ function ISGenTweaksContextMenu.addToSystemTooltip(addOption, player, genID, tex
     addOption.toolTip = ISToolTip:new()
     addOption.toolTip:initialise()
     addOption.toolTip:setVisible(true)
-    addOption.toolTip:setTexture(texture)
 
     --Option not available if don't have enough items
     if electrical < 1 or screwdriver < 1 or electricWire < 1 then addOption.notAvailable = true end
 
     if player:isRecipeKnown("Generator") then
+        addOption.toolTip:setTexture(texture)
         addOption.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
         addOption.toolTip.description = colors.white .. getText("Tooltip_GenTweaks_AddToSystemDescription") .. " <LINE><LINE> "
         addOption.toolTip.description = addOption.toolTip.description .. getText("Tooltip_craft_Needs") .. ": <LINE> "
@@ -86,14 +127,24 @@ function ISGenTweaksContextMenu.removeFromSystemTooltip(removeOption, player, ge
     removeOption.toolTip = ISToolTip:new()
     removeOption.toolTip:initialise()
     removeOption.toolTip:setVisible(true)
-    removeOption.toolTip:setTexture(texture)
 
     -- Option not available if don't have enough items
     if electrical < 1 or screwdriver < 1 then removeOption.notAvailable = true end
 
     if player:isRecipeKnown("Generator") then
+        removeOption.toolTip.maxLineWidth = 200
+        removeOption.toolTip:setTexture(texture)
         removeOption.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
-        removeOption.toolTip.description = colors.white .. getText("Tooltip_GenTweaks_RemoveFromSystemDescription") .. " <LINE><LINE> "
+
+        --Warning if it is the branch master
+        local branchID = ISGenTweaksUtils.getBranchIDFromGeneratorID(genID)
+        if genID == branchID then
+            removeOption.toolTip.description = " <H1><CENTRE><SIZE:large> " .. colors.bad .. getText("Tooltip_GenTweaks_Warning") .. " <SIZE:small><LINE><LINE> "
+            removeOption.toolTip.description = removeOption.toolTip.description .. " <TEXT><LEFT> " .. colors.white .. getText("Tooltip_GenTweaks_WarningMessage") .. " <LINE><LINE> "
+        end
+
+        --Default description
+        removeOption.toolTip.description = removeOption.toolTip.description .. colors.white .. getText("Tooltip_GenTweaks_RemoveFromSystemDescription") .. " <LINE><LINE> "
         removeOption.toolTip.description = removeOption.toolTip.description .. getText("Tooltip_craft_Needs") .. ": <LINE> "
 
         if screwdriver > 0 then colors.use = colors.good else colors.use = colors.bad end
@@ -126,6 +177,7 @@ end
 function ISGenTweaksContextMenu.onClickBranchSettings(player, generator, setting)
     walkToAdjacent(player, generator:getSquare())
     local screwdriver, returnItems = ISGenTweaksContextMenu.checkInteractItem(player)
+    if not screwdriver then return end
     ISTimedActionQueue.add(ISGenTweaksInteractAction:new(player, screwdriver, "branchSetting", generator, setting))
     ISCraftingUI.ReturnItemsToOriginalContainer(player, returnItems)
 end
@@ -136,8 +188,9 @@ end
 function ISGenTweaksContextMenu.onClickAddGeneratorToSystem(player, generator)
     walkToAdjacent(player, generator:getSquare())
     local electricWire = player:getInventory():getItemFromTypeRecurse("ElectricWire")
-    ISInventoryPaneContextMenu.transferIfNeeded(player, electricWire)
     local screwdriver, returnItems = ISGenTweaksContextMenu.checkInteractItem(player)
+    if not screwdriver then return end
+    ISInventoryPaneContextMenu.transferIfNeeded(player, electricWire)
     ISTimedActionQueue.add(ISGenTweaksInteractAction:new(player, screwdriver, "addToSystem", generator))
     ISCraftingUI.ReturnItemsToOriginalContainer(player, returnItems)
 end
@@ -148,6 +201,7 @@ end
 function ISGenTweaksContextMenu.onClickRemoveGeneratorFromSystem(player, generator)
     walkToAdjacent(player, generator:getSquare())
     local screwdriver, returnItems = ISGenTweaksContextMenu.checkInteractItem(player)
+    if not screwdriver then return end
     ISTimedActionQueue.add(ISGenTweaksInteractAction:new(player, screwdriver, "removeFromSystem", generator))
     ISCraftingUI.ReturnItemsToOriginalContainer(player, returnItems)
 end
@@ -187,7 +241,7 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
             local generatorSubMenu = ISContextMenu:getNew(contextMenu)
             contextMenu:addSubMenu(generatorMenu, generatorSubMenu)
 
-            if not generatorActive and generatorConnected then
+            if not generatorActive then
                 -- ------ Adding/removing to/from Branch System  ------ --
                 if not isOnBranchSystem then
                     local addOption = generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_AddToSystem"), player, ISGenTweaksContextMenu.onClickAddGeneratorToSystem, generator)
@@ -199,27 +253,22 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
             else
                 -- ------ Branch settings options ------ --
                 if isOnBranchSystem then
-                    if player:isRecipeKnown("Generator") then -- Generator magazine is read
-                        generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Disable"), player, ISGenTweaksContextMenu.onClickBranchSettings, generator, -1)
-                        generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Split"), player, ISGenTweaksContextMenu.onClickBranchSettings, generator, 0)
-                        generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Focus"), player, ISGenTweaksContextMenu.onClickBranchSettings, generator, genID)
-                    else
-                        generatorMenu.notAvailable = true
-                        generatorMenu.toolTip = ISWorldObjectContextMenu.addToolTip()
-                        generatorMenu.toolTip.description = getText("ContextMenu_GeneratorPlugTT")
-                    end
+                    local disableOption = generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Disable"), player, ISGenTweaksContextMenu.onClickBranchSettings, generator, -1)
+                    local splitOption   = generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Split"), player, ISGenTweaksContextMenu.onClickBranchSettings, generator, 0)
+                    local focusOption   = generatorSubMenu:addOption(getText("ContextMenu_GenTweaks_Focus"), player, ISGenTweaksContextMenu.onClickBranchSettings, generator, genID)
+                    ISGenTweaksContextMenu.branchSettingTooltip(disableOption, splitOption, focusOption, player)
                 end
             end
 
             ------------------ #Vanilla Overrides# ------------------
-            -- ------ Override tooltip of 'Generator info' option ------ --
-
+            -- ------ Override tooltip of 'Generator Info' option ------ --
             if player:DistToSquared(generator:getX() + 0.5, generator:getY() + 0.5) < 2 * 2 then
                 local optionInfo = contextMenu:getOptionFromName(getText("ContextMenu_GeneratorInfo"))
                 optionInfo.toolTip:setName(getText("IGUI_Generator_TypeGas") .. " - ID: " .. tostring(genID))
                 optionInfo.toolTip:setTexture(generatorTexture)
                 optionInfo.toolTip.maxLineWidth = 400
 
+                -- Disabling 'Turn On' option tooltip
                 if not generatorActive and generatorConnected then
                     local option = contextMenu:getOptionFromName(getText("ContextMenu_Turn_On"))
                     option.toolTip = nil
@@ -228,16 +277,20 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
 
             -- ------ Override tooltip of the 'Take generator' option ------ --
             if not generatorConnected then
-                local branchID = ISGenTweaksUtils.getBranchIDFromGeneratorID(genID)
-                if genID == branchID then
-                    local option = contextMenu:getOptionFromName(getText("ContextMenu_GeneratorTake"))
-                    if isOnBranchSystem then option.notAvailable = true end
-                    ISGenTweaksContextMenu.takeGeneratorTooltip(option, genID, generatorTexture)
-                end
+                local option = contextMenu:getOptionFromName(getText("ContextMenu_GeneratorTake"))
+                if isOnBranchSystem then option.notAvailable = true end
+                ISGenTweaksContextMenu.takeGeneratorTooltip(option)
             end
 
-            -- ------ Removing submenu if empty ------ --
-            if generatorSubMenu:isEmpty() then
+            -- ------ Removing submenu ------ --
+            if not player:isRecipeKnown("Generator") then
+                generatorSubMenu:clear()
+                generatorMenu.notAvailable = true
+                generatorMenu.subOption = nil
+                generatorMenu.toolTip = ISWorldObjectContextMenu.addToolTip()
+                generatorMenu.toolTip.description = getText("ContextMenu_GeneratorPlugTT")
+            end
+            if generatorSubMenu:isEmpty() and generatorActive and not isOnBranchSystem then
                 contextMenu:removeOptionByName(getText("ContextMenu_GenTweaks_BranchMenu"))
             end
         end

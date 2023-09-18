@@ -1,8 +1,8 @@
-﻿IGUI_EN = {
+IGUI_EN = {
 
-    IGUI_GenTweaks_NotInModData = "This Generator is not being handled by Generator Tweaks.",
-    IGUI_GenTweaks_NotInModDataConnected = "Please restart this Generator.",
-    IGUI_GenTweaks_NotInModDataNotConnected = "Please connect this Generator.",
+    IGUI_GenTweaks_NotInModData = "This generator is not being handled by Generator Tweaks.",
+    IGUI_GenTweaks_NotInModDataConnected = "Please restart this generator.",
+    IGUI_GenTweaks_NotInModDataNotConnected = "Please connect this generator.",
     IGUI_GenTweaks_NoPowerSetting = "Disabled",
     IGUI_GenTweaks_PowerSplit = "Split power consumption",
     IGUI_GenTweaks_PowerFocus = "Focus power consumption",
@@ -16,5 +16,6 @@
     IGUI_GenTweaks_SettingsApplied = "Successfully applied settings to Branch %1!",
     IGUI_GenTweaks_AddedToSystem = "Successfully added to the Branch System!",
     IGUI_GenTweaks_RemovedFromSystem = "Successfully removed from the Branch System!",
+    IGUI_GenTweaks_NotInSystem = "This generator is not on the Branch System.",
 
 }

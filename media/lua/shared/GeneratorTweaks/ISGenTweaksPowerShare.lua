@@ -17,13 +17,14 @@ local pairs = pairs
 ---Gets all the generators adjacent to a specific generator
 ---@param generator IsoGenerator Generator to get the others adjacent
 ---@param totalGenerators KahluaTable ModData table containing all Generator IDs
+---@param isOnBranchSystem boolean If the generator currently in check is on the branch system
 ---@return table Contains a table with all the IDs of Generators adjacent to the given generator
-function ISGenTweaksPowerShare.getAdjacentGenerators(generator, totalGenerators)
+function ISGenTweaksPowerShare.getAdjacentGenerators(generator, totalGenerators, isOnBranchSystem)
     local currentGeneratorSquare = generator:getSquare()
     local currentGeneratorAdjacent = {}
     for i, data in pairs(totalGenerators) do
         local generatorModDataSquare = getCell():getGridSquare(data.x, data.y, data.z)
-        if generatorModDataSquare and (generatorModDataSquare ~= currentGeneratorSquare) and (currentGeneratorSquare:DistToProper(generatorModDataSquare) <= 20) and data.branch == true then
+        if generatorModDataSquare and isOnBranchSystem and (generatorModDataSquare ~= currentGeneratorSquare) and (currentGeneratorSquare:DistToProper(generatorModDataSquare) <= 20) and data.branch == true then
             table.insert(currentGeneratorAdjacent, i)
             --ISGenTweaksUtils.printPosFromData(data)
         end
@@ -41,7 +42,7 @@ function ISGenTweaksPowerShare.getAllAdjacentGenerators()
     for i, data in pairs(totalGenerators) do
         local generator = ISGenTweaksUtils.getGeneratorFromPos(data)
         if generator then
-            adjacentGenerators[i] = ISGenTweaksPowerShare.getAdjacentGenerators(generator, totalGenerators)
+            adjacentGenerators[i] = ISGenTweaksPowerShare.getAdjacentGenerators(generator, totalGenerators, data.branch)
         end
     end
     return adjacentGenerators

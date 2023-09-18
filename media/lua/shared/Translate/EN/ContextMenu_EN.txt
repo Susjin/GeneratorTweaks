@@ -1,4 +1,4 @@
-﻿ContextMenu_EN = {
+ContextMenu_EN = {
 
     ContextMenu_GenTweaks_BranchMenu = "Branch System",
     ContextMenu_GenTweaks_Split = "Split Power Between Generators",

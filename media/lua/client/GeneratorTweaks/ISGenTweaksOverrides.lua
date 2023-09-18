@@ -115,21 +115,27 @@ function ISGenTweaksOverride.setTextForDescription(generator, text)
         local shareSetting = ISGenTweaksUtils.getShareSetting(branches[branchID].share)
         local correctedPower = ISGenTweaksUtils.roundNumber(ISGenTweaksPowerSet.calculateTotalPower(generator), 2)
         local currentPower = ISGenTweaksUtils.roundNumber(generator:getTotalPowerUsing(), 2)
-        local isActivated = generator:isActivated() and ISGenTweaksUtils.isOnBranchSystem(genID)
+        local isActivated = generator:isActivated()
+        local isOnBranchSystem = ISGenTweaksUtils.isOnBranchSystem(genID)
 
         if (shareSetting == 0) and isActivated then
             if currentPower ~= correctedPower then
                 text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
             end
             --BranchInfo
-            text = text .. " <LINE><LINE> <INDENT:0> "
-            text = text .. getText("IGUI_GenTweaks_BranchInfo", branchID)
-            text = text .. " <LINE> <INDENT:10> "
-            text = text .. getText("IGUI_GenTweaks_BranchTotalGen", branchTotal.count) .. " <LINE> "
-            text = text .. getText("IGUI_GenTweaks_ThisTotalGen", correctedPower) .. " L/h <LINE> "
-            text = text .. getText("IGUI_GenTweaks_BranchTotalPower", ISGenTweaksUtils.roundNumber(branchTotal.total, 2)) .. " L/h <LINE> "
-            text = text .. getText("IGUI_GenTweaks_BranchMode") .. branchMode
-        elseif (shareSetting == 1) and isActivated then
+            if isOnBranchSystem then
+                text = text .. " <LINE><LINE> <INDENT:0> "
+                text = text .. getText("IGUI_GenTweaks_BranchInfo", branchID)
+                text = text .. " <LINE> <INDENT:10> "
+                text = text .. getText("IGUI_GenTweaks_BranchTotalGen", branchTotal.count) .. " <LINE> "
+                text = text .. getText("IGUI_GenTweaks_ThisTotalGen", correctedPower) .. " L/h <LINE> "
+                text = text .. getText("IGUI_GenTweaks_BranchTotalPower", ISGenTweaksUtils.roundNumber(branchTotal.total, 2)) .. " L/h <LINE> "
+                text = text .. getText("IGUI_GenTweaks_BranchMode") .. branchMode
+            else
+                text = text .. " <LINE><LINE> <INDENT:0> "
+                text = text .. getText("IGUI_GenTweaks_NotInSystem", branchID)
+            end
+        elseif (shareSetting == 1) and isActivated and isOnBranchSystem then
             if currentPower ~= ISGenTweaksUtils.roundNumber(branchEach, 2) then
                 text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
             end
@@ -142,7 +148,7 @@ function ISGenTweaksOverride.setTextForDescription(generator, text)
             text = text .. getText("IGUI_GenTweaks_BranchTotalPower", ISGenTweaksUtils.roundNumber(branchTotal.total, 2)) .. " L/h <LINE> "
             text = text .. getText("IGUI_GenTweaks_BranchMode") .. branchMode
 
-        elseif (shareSetting == 2) and isActivated then
+        elseif (shareSetting == 2) and isActivated and isOnBranchSystem then
             local isFocusPower = genID == branches[branchID].share and ISGenTweaksUtils.roundNumber(branchTotal.total, 2) or 0
             if currentPower ~= isFocusPower then
                 text = text .. " " .. getText("IGUI_GenTweaks_NeedsCorrection")
