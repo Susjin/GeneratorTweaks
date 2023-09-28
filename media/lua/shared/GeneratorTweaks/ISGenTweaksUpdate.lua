@@ -5,7 +5,7 @@
 ---	Steam profile: https://steamcommunity.com/id/peter_pg/
 --- GitHub Repository: https://github.com/Susjin/GeneratorTweaks
 
---- Main file with all functions
+--- All the methods related to the every minute update
 --- @class ISGenTweaksUpdate
 local ISGenTweaksUpdate = {}
 ----------------------------------------------------------------------------------------------
@@ -17,8 +17,11 @@ local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 ---Updates all generators on the Global ModData per in-game minute
 function ISGenTweaksUpdate.updateEveryMinute()
     --Gets all tables from Global ModData
+    ---@type Generator[]
     local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
+    ---@type Branch[]
     local branches = ModData.getOrCreate("GenTweaksBranches")
+    --Checks if they have any value within
     if not ISGenTweaksUtils.checkModData(totalGenerators) then return end
     if not ISGenTweaksUtils.checkModData(branches) then return end
 

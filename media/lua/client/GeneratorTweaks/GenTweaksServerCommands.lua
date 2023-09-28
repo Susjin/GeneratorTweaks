@@ -5,7 +5,7 @@
 ---	Steam profile: https://steamcommunity.com/id/peter_pg/
 --- GitHub Repository: https://github.com/Susjin/AutomaticGateMotors
 
----	All the methods related to the ClientCommands are listed in this file
+---	All the methods related to handling ServerCommands are listed in this file
 --- @class GenTweaksServerCommands
 --- @return GenTweaksServerCommands
 local GenTweaksServerCommands = {}

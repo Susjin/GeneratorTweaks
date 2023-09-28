@@ -5,7 +5,7 @@
 ---	Steam profile: https://steamcommunity.com/id/peter_pg/
 --- GitHub Repository: https://github.com/Susjin/GeneratorTweaks
 
---- Main file with all functions
+--- All the methods related to overriding vanilla functions
 --- @class ISGenTweaksOverride
 local ISGenTweaksOverride = {}
 ----------------------------------------------------------------------------------------------
@@ -79,6 +79,7 @@ function ISGeneratorInfoWindow.getRichText(object, displayStats)
     local condition = object:getCondition()
 
     local text = getText("IGUI_Generator_FuelAmount", fuel) .. " <LINE> " .. getText("IGUI_Generator_Condition", condition) .. " <LINE> "
+    --GeneratorTimeRemaining compatibility
     if hasTimeRemaining then text = getText("IGUI_Generator_FuelAmount", fuel) .. GTR:toString(object, fuel) .. " <LINE> " .. getText("IGUI_Generator_Condition", condition) .. " <LINE> " end
 
     if object:isActivated() then
@@ -91,6 +92,7 @@ function ISGeneratorInfoWindow.getRichText(object, displayStats)
         end
         text = text .. getText("IGUI_Total") .. ": " .. ISGenTweaksUtils.roundNumber(object:getTotalPowerUsing(), 2) .. " L/h"
     end
+
     --All the new branch information
     text = ISGenTweaksOverride.setTextForDescription(object, text)
 
@@ -105,6 +107,7 @@ end
 ---@param text string Previous text description used in the InfoWindow
 function ISGenTweaksOverride.setTextForDescription(generator, text)
     local colors = ISGenTweaksUtils.getColorsFromAcessibility()
+    ---@type Branch[]
     local branches = ModData.getOrCreate("GenTweaksBranches")
     local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
     if genID > -1 and ISGenTweaksUtils.checkModData(branches) then

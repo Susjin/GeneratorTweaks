@@ -5,7 +5,7 @@ require "TimedActions/ISBaseTimedAction"
 --- Steam profile: https://steamcommunity.com/id/peter_pg/
 --- GitHub Repository: https://github.com/Susjin/GeneratorTweaks
 
---- All the methods related to Generator Interactions are listed in this file
+--- All the methods related to the Generator Interactions
 --- @class ISGenTweaksInteractAction : ISBaseTimedAction
 --- @field character IsoPlayer The player doing the action
 --- @field screwdriver HandWeapon Screwdriver used in the action
@@ -64,7 +64,7 @@ end
 
 function ISGenTweaksInteractAction:start()
     if self.actionCommand == "branchSetting" then
-        self.screwdriver:setJobType(textsTypes[self.actionCommand][(ISGenTweaksUtils.getShareSetting(self.share))+1])
+        self.screwdriver:setJobType(textsTypes[self.actionCommand][(ISGenTweaksUtils.getShareSetting(self.share))+1]) -- HACK to get the correct text
     else
         self.screwdriver:setJobType(textsTypes[self.actionCommand])
     end
@@ -104,7 +104,6 @@ function ISGenTweaksInteractAction:perform()
         local branchID = ISGenTweaksUtils.getBranchIDFromGeneratorID(self.genID)
         local haloColor = self.share == -1 and HaloTextHelper.getColorRed() or HaloTextHelper.getColorGreen()
         HaloTextHelper.addText(self.character, getText("IGUI_GenTweaks_SettingsApplied", branchID), haloColor)
-
     elseif self.actionCommand == "addToSystem" then
         local electricWire = self.character:getInventory():getItemFromTypeRecurse("ElectricWire")
         electricWire:getContainer():Remove(electricWire)
@@ -115,9 +114,7 @@ function ISGenTweaksInteractAction:perform()
         else
             sendClientCommand("GenTweaks", self.actionCommand, {genID = self.genID})
         end
-
         HaloTextHelper.addText(self.character, getText("IGUI_GenTweaks_AddedToSystem"), HaloTextHelper.getColorGreen())
-
     elseif self.actionCommand == "removeFromSystem" then
         self.character:getInventory():AddItem("Radio.ElectricWire")
 
@@ -127,7 +124,6 @@ function ISGenTweaksInteractAction:perform()
         else
             sendClientCommand("GenTweaks", self.actionCommand, {genID = self.genID})
         end
-
         HaloTextHelper.addText(self.character, getText("IGUI_GenTweaks_RemovedFromSystem"), HaloTextHelper.getColorRed())
     end
 
@@ -136,7 +132,7 @@ function ISGenTweaksInteractAction:perform()
     ISBaseTimedAction.perform(self)
 end
 
----Starts a controller interaction TimedAction
+---Starts a generator interaction TimedAction
 ---@param character IsoPlayer The player doing the action
 ---@param screwdriver InventoryItem Screwdriver used in the action
 ---@param actionCommand string Interaction to be executed

@@ -5,13 +5,14 @@
 ---	Steam profile: https://steamcommunity.com/id/peter_pg/
 --- GitHub Repository: https://github.com/Susjin/GeneratorTweaks
 
---- Main file with all functions
+--- All the methods related to the ContextMenu
 --- @class ISGenTweaksContextMenu
 local ISGenTweaksContextMenu = {}
 ----------------------------------------------------------------------------------------------
 --Setting up locals
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 local ISGenTweaksInteractAction = require "GeneratorTweaks/TimedActions/ISGenTweaksInteractAction"
+local ISGenTweaksClearQueueAction = require "GeneratorTweaks/TimedActions/ISGenTweaksClearQueueAction"
 
 local walkToAdjacent = luautils.walkAdj
 
@@ -158,6 +159,8 @@ function ISGenTweaksContextMenu.removeFromSystemTooltip(removeOption, player, ge
 end
 
 -- ---------------- Functions related to actions on the ContextMenu ---------------- --
+---Checks if the player have the required tools to do an interaction and transfer them if needed
+---@param player IsoPlayer Player that is been checking
 function ISGenTweaksContextMenu.checkInteractItem(player)
     local playerInventory = player:getInventory()
     local returnToContainer = {}
@@ -180,6 +183,7 @@ function ISGenTweaksContextMenu.onClickBranchSettings(player, generator, setting
     if not screwdriver then return end
     ISTimedActionQueue.add(ISGenTweaksInteractAction:new(player, screwdriver, "branchSetting", generator, setting))
     ISCraftingUI.ReturnItemsToOriginalContainer(player, returnItems)
+    ISTimedActionQueue.add(ISGenTweaksClearQueueAction:new(player)) --Clear queue to avoid issues
 end
 
 ---Adds the selected generator to the Branch System
@@ -193,6 +197,7 @@ function ISGenTweaksContextMenu.onClickAddGeneratorToSystem(player, generator)
     ISInventoryPaneContextMenu.transferIfNeeded(player, electricWire)
     ISTimedActionQueue.add(ISGenTweaksInteractAction:new(player, screwdriver, "addToSystem", generator))
     ISCraftingUI.ReturnItemsToOriginalContainer(player, returnItems)
+    ISTimedActionQueue.add(ISGenTweaksClearQueueAction:new(player)) --Clear queue to avoid issues
 end
 
 ---Removes the selected generator from the Branch System
@@ -204,13 +209,14 @@ function ISGenTweaksContextMenu.onClickRemoveGeneratorFromSystem(player, generat
     if not screwdriver then return end
     ISTimedActionQueue.add(ISGenTweaksInteractAction:new(player, screwdriver, "removeFromSystem", generator))
     ISCraftingUI.ReturnItemsToOriginalContainer(player, returnItems)
+    ISTimedActionQueue.add(ISGenTweaksClearQueueAction:new(player)) --Clear queue to avoid issues
 end
 
 -- ---------------- Functions related to ContextMenu ---------------- --
 ---Creates the ContextMenu option when clicking a generator
 ---@param playerNum number Player index number
 ---@param contextMenu ISContextMenu Generated ContextMenu
----@param worldObjects table<number, IsoObject> Table containing objects on the clicked position
+---@param worldObjects IsoObject[] Table containing objects on the clicked position
 function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjects)
     local player = getSpecificPlayer(playerNum)
     ---@type IsoGenerator
@@ -221,10 +227,8 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
         end
     end
 
-    --if getDebug() then contextMenu:addOption("test range", worldObjects[1]:getSquare(), function(square, playerSquare) print(square:DistToProper(playerSquare))  end, player:getSquare()) end
-    --local playerModData = player:getModData()
-
     if generator then
+        ---@type Branch[]
         local branches = ModData.getOrCreate("GenTweaksBranches")
         local genID = ISGenTweaksUtils.getIDFromGenerator(generator)
         if genID > 0 and ISGenTweaksUtils.checkModData(branches) then

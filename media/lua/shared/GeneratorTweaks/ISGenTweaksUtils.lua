@@ -5,13 +5,28 @@
 ---	Steam profile: https://steamcommunity.com/id/peter_pg/
 --- GitHub Repository: https://github.com/Susjin/GeneratorTweaks
 
---- Main file with all functions
+--- All the methods related to useful utilities
 --- @class ISGenTweaksUtils
 local ISGenTweaksUtils = {}
 ----------------------------------------------------------------------------------------------
 --Setting up locals
 local pairs = pairs
 local print = print
+
+--Class declarations
+---@class Branch : table
+---@field share number Current branch setting
+
+---@class BranchPower : table
+---@field total number Total power in the current branch
+---@field count number Total enabled generators in the current branch
+
+---@class Generator : table
+---@field x number X position of the Generator
+---@field y number Y position of the Generator
+---@field z number Z position of the Generator
+---@field branch boolean If true, the generator is added to the branch system
+
 
 -- ---------------- Miscellaneous Functions ---------------- --
 ---Prints a message in the log only if in debug mode
@@ -53,24 +68,6 @@ function ISGenTweaksUtils.roundNumber(number, numberDecimalPlaces)
 	return math.floor(number * decimal + 0.5) / decimal
 end
 
----Prints the coordinates of a IsoGridSquare
----@param table table Contains a x, y and z index for the position of a IsoGridSquare
-function ISGenTweaksUtils.printPosFromData(table)
-	ISGenTweaksUtils.debugMessage(string.format("X: %d, Y: %d, Z: %d", table.x, table.y, table.z))
-end
-
----Prints all the generator connection branches
----@param branches KahluaTable Contains all the branches of generator connections
-function ISGenTweaksUtils.printConnections(branches)
-	for i, data in pairs(branches) do
-		ISGenTweaksUtils.debugMessage(string.format("Connections in branch %d are:", i))
-		for j=1, #data do
-			ISGenTweaksUtils.debugMessage(j .. "o: " .. data[j])
-		end
-		ISGenTweaksUtils.debugMessage("")
-	end
-end
-
 -- ---------------- Functions related to general Generator interactions ---------------- --
 ---Gets the current setting of a branch from it's value
 ---@param shareValue number	'share' index inside the Branch's ModData table
@@ -92,7 +89,7 @@ function ISGenTweaksUtils.getShareSetting(shareValue)
 end
 
 ---Gets a generator from a XYZ coordinates
----@param genXYZ table Contains the coordinates of a grid square
+---@param genXYZ Generator Contains the coordinates of a grid square
 ---@return IsoGenerator Generator is that grid square
 function ISGenTweaksUtils.getGeneratorFromPos(genXYZ)
 	if genXYZ then
@@ -110,7 +107,7 @@ function ISGenTweaksUtils.getGeneratorFromPos(genXYZ)
 end
 
 ---Gets the Generator ID in ModData table by a generator object
----@param generator IsoGenerator
+---@param generator IsoGenerator Generator to get the ID from
 ---@return number Generator ID in ModData table (-1 if non-existent)
 function ISGenTweaksUtils.getIDFromGenerator(generator)
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
@@ -136,10 +133,11 @@ function ISGenTweaksUtils.isOnBranchSystem(genID)
 	return totalGenerators[genID].branch and true or false
 end
 
----Sets if a Generator is on the Branch System
+---Sets if a Generator is on the Branch System - If it's the master of the branch, resets it's settings
 ---@param genID number Generator ID in ModData table
 ---@param addOrRemove boolean If true, adds to the Branch System, if false, removes from it
 function ISGenTweaksUtils.setIsOnBranchSystem(genID, addOrRemove)
+	---@type Generator[]
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
 	if not ISGenTweaksUtils.checkModData(totalGenerators) then return false end
 	totalGenerators[genID].branch = addOrRemove
@@ -155,6 +153,7 @@ end
 ---@param genID number Generator ID in ModData table
 ---@return number The branch index that the generator is located (-1 if non-existent)
 function ISGenTweaksUtils.getBranchIDFromGeneratorID(genID)
+	---@type Branch[]
 	local branches = ModData.getOrCreate("GenTweaksBranches")
 	if not ISGenTweaksUtils.checkModData(branches) then return false end
 
@@ -183,9 +182,10 @@ function ISGenTweaksUtils.getBranchModeFromSetting(share)
 end
 
 ---Get the total power a whole Branch of generators is consuming
----@param branch KahluaTable ModData table containing all data from the given Branch
----@return table Contains the index 'total' and 'count' with the total power and amount of generators counted
+---@param branch Branch ModData table containing all data from the given Branch
+---@return BranchPower Contains the index 'total' and 'count' with the total power and amount of generators counted
 function ISGenTweaksUtils.getBranchTotalPower(branch)
+	---@type Generator[]
 	local totalGenerators = ModData.getOrCreate("GenTweaksGenerators")
 	if not ISGenTweaksUtils.checkModData(totalGenerators) then return {} end
 
@@ -197,14 +197,14 @@ function ISGenTweaksUtils.getBranchTotalPower(branch)
 		if instanceof(generator, "IsoGenerator") and generator:isActivated() then
 			branchPower.total = branchPower.total + generator:getTotalPowerUsing()
 			branchPower.count = branchPower.count + 1
-			--ISGenTweaksUtils.debugMessage(string.format("Branch %d current: sum: %.2f | count: %d", branchID, branchPower.total, branchPower.count))
 		end
 	end
+	ISGenTweaksUtils.debugMessage(string.format("Branch Setting: %d | total: %.2f | count: %d", ISGenTweaksUtils.getBranchModeFromSetting(ISGenTweaksUtils.getShareSetting(branch.share)), branchPower.total, branchPower.count))
 	return branchPower
 end
 
 ---Gets the power that needs to be set to each generator in a Branch
----@param branch KahluaTable ModData table containing all data from the given Branch
+---@param branch Branch ModData table containing all data from the given Branch
 ---@return number Power to be set in each generator
 function ISGenTweaksUtils.getBranchEachPower(branch)
 	local branchPower = ISGenTweaksUtils.getBranchTotalPower(branch)
@@ -258,6 +258,7 @@ end
 ---@param genID number ID of the Generator being interacted with
 ---@param setting number Branch setting 'share' value to be set in the branch
 function ISGenTweaksUtils.setBranchSetting(genID, setting)
+	---@type Branch[]
 	local branches = ModData.getOrCreate("GenTweaksBranches")
 	if not ISGenTweaksUtils.checkModData(branches) then return false end
 	local branchIndex = ISGenTweaksUtils.getBranchIDFromGeneratorID(genID)

@@ -5,7 +5,7 @@
 ---	Steam profile: https://steamcommunity.com/id/peter_pg/
 --- GitHub Repository: https://github.com/Susjin/GeneratorTweaks
 
---- Main file with all functions
+--- All the methods related to correcting power consumption on generators
 --- @class ISGenTweaksPowerSet
 --- @return ISGenTweaksPowerSet
 local ISGenTweaksPowerSet = {}
@@ -13,7 +13,9 @@ local ISGenTweaksPowerSet = {}
 --Setting locals
 local ISGenTweaksUtils = require "GeneratorTweaks/ISGenTweaksUtils"
 local ISGenTweaksPowerShare = require "GeneratorTweaks/ISGenTweaksPowerShare"
+
 local pairs = pairs
+
 local powerGeneratorConstant = 0.02
 
 
@@ -24,12 +26,12 @@ function ISGenTweaksPowerSet.getAllItemsPowered(generator)
     local poweredList = generator:getItemsPowered()
     local itemsPowered = {}
     local itemsFormatted = ""
-    for i=0, poweredList:size()-1 do
-        itemsFormatted = poweredList:get(i):gsub(" L/h%)","")
-        itemsFormatted = itemsFormatted:gsub("%(","-")
-        itemsFormatted = itemsFormatted:gsub("x","-")
-        itemsFormatted = itemsFormatted:gsub(",",".")
-        itemsFormatted = luautils.split(itemsFormatted, "-")
+    for i=0, poweredList:size()-1 do --( device x4 (0,26L/h) ) Original string text
+        itemsFormatted = poweredList:get(i):gsub(" L/h%)","") --( device x4 (0,26 ) Change the ' L/h)' to ''
+        itemsFormatted = itemsFormatted:gsub("%(","-") --( device x4 -0,26 ) Change the '(' to '-'
+        itemsFormatted = itemsFormatted:gsub("x","-") --( device -4 -0,26 ) Change the 'x' to '-'
+        itemsFormatted = itemsFormatted:gsub(",",".") --( device -4 -0.26 ) Change the ',' to '.'
+        itemsFormatted = luautils.split(itemsFormatted, "-") --( device |4 |0.26 ) Each bar is a different table pos
         table.insert(itemsPowered, itemsFormatted)
     end
     return itemsPowered
@@ -42,7 +44,7 @@ function ISGenTweaksPowerSet.calculateTotalPower(generator)
     local itemsPowered = ISGenTweaksPowerSet.getAllItemsPowered(generator)
     local sum = 0
     for i=1, #itemsPowered do
-        sum = sum + tonumber(itemsPowered[i][3])
+        sum = sum + tonumber(itemsPowered[i][3]) --Only the power consumption value from each item got from the earlier function
     end
     sum = (sum + powerGeneratorConstant) * SandboxVars.GeneratorFuelConsumption
     return ISGenTweaksUtils.roundNumber(sum, 5)
@@ -57,12 +59,13 @@ function ISGenTweaksPowerSet.correctGenerator(generator)
 end
 
 ---Correct all generators that are in the ModData table
----@param totalGenerators KahluaTable ModData table containing all generators IDs and pos
+---@param totalGenerators Generator[] ModData table containing all generators IDs and pos
 function ISGenTweaksPowerSet.correctAllGenerators(totalGenerators)
     for i, data in pairs(totalGenerators) do
         if data then
             local generator = ISGenTweaksUtils.getGeneratorFromPos(data)
             if generator == "notFound" then
+                --If the square is loaded, but a generator is not found, remove it from the global table (sync data if MP)
                 totalGenerators[i] = nil
                 ISGenTweaksPowerShare.createAllBranches()
                 if isServer() then
@@ -70,6 +73,7 @@ function ISGenTweaksPowerSet.correctAllGenerators(totalGenerators)
                     ModData.transmit("GenTweaksBranches")
                 end
             else
+                --Just a double-check to avoid issues with the function square:getGenerator()
                 if instanceof(generator, "IsoGenerator") and generator:isActivated() then
                     ISGenTweaksPowerSet.correctGenerator(generator)
                 end
