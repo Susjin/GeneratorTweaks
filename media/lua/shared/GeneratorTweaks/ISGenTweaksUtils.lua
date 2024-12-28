@@ -199,7 +199,7 @@ function ISGenTweaksUtils.getBranchTotalPower(branch)
 			branchPower.count = branchPower.count + 1
 		end
 	end
-	ISGenTweaksUtils.debugMessage(string.format("Branch Setting: %d | total: %.2f | count: %d", ISGenTweaksUtils.getBranchModeFromSetting(ISGenTweaksUtils.getShareSetting(branch.share)), branchPower.total, branchPower.count))
+	--ISGenTweaksUtils.debugMessage(string.format("Branch Setting: %d | total: %.2f | count: %d", ISGenTweaksUtils.getBranchModeFromSetting(ISGenTweaksUtils.getShareSetting(branch.share)), branchPower.total, branchPower.count))
 	return branchPower
 end
 

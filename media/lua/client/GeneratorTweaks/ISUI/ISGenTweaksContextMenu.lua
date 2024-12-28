@@ -237,6 +237,7 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
             local generatorConnected = generator:isConnected()
             local generatorActive = generator:isActivated()
             local generatorTexture = generator:getTextureName()
+            local canTurnOn = generator:getFuel() > 0 and generator:getCondition() > 0
 
             ------------------ #Branch System# ------------------
             -- ------ Creating submenu  ------ --
@@ -273,7 +274,7 @@ function ISGenTweaksContextMenu.onContextMenu(playerNum, contextMenu, worldObjec
                 optionInfo.toolTip.maxLineWidth = 400
 
                 -- Disabling 'Turn On' option tooltip
-                if not generatorActive and generatorConnected then
+                if not generatorActive and generatorConnected and canTurnOn then
                     local option = contextMenu:getOptionFromName(getText("ContextMenu_Turn_On"))
                     option.toolTip = nil
                 end
